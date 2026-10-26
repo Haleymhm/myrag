@@ -1,0 +1,125 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-26T12:43:00Z",
+  "title": "Design System: Extracto",
+  "extensions": {
+    "colorMeta": {
+      "primary": {
+        "role": "primary",
+        "displayName": "Obsidian Zinc",
+        "canonical": "#18181b",
+        "tonalRamp": [
+          "#09090b",
+          "#18181b",
+          "#27272a",
+          "#3f3f46",
+          "#71717a",
+          "#a1a1aa",
+          "#e4e4e7",
+          "#fafafa"
+        ]
+      },
+      "neutral-bg": {
+        "role": "neutral",
+        "displayName": "Canvas Ground",
+        "canonical": "#fafafa",
+        "tonalRamp": [
+          "#09090b",
+          "#18181b",
+          "#27272a",
+          "#52525b",
+          "#a1a1aa",
+          "#d4d4d8",
+          "#f4f4f5",
+          "#fafafa"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Títulos principales y encabezados de inspección."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Texto operativo, botones y metadatos."
+      }
+    },
+    "shadows": [
+      {
+        "name": "card-hover",
+        "value": "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)",
+        "purpose": "Elevación sutil al pasar el cursor sobre tarjetas."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-out-smooth",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Transición suave de paneles y elevaciones."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "md",
+        "value": "768px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Botón de acción principal (subida y guardado).",
+      "html": "<button class=\"ds-btn-primary\">SUBIR DOCUMENTOS</button>",
+      "css": ".ds-btn-primary { background: #18181b; color: #fafafa; padding: 6px 14px; font-size: 12px; font-weight: 500; border: none; border-radius: 8px; cursor: pointer; transition: background 0.15s ease; } .ds-btn-primary:hover { background: #27272a; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Precision Monolith",
+    "overview": "Extracto es un espacio de trabajo de instrumentación técnica para ingesta y gestión de corpus documental. Su diseño adopta la estética SaaS Minimalista Clásica: monocromático, sobrio y de alta precisión.",
+    "keyCharacteristics": [
+      "Monocromía rigurosa",
+      "Tabularidad estricta",
+      "Micro-interacciones táctiles",
+      "Inspección sin fricción"
+    ],
+    "rules": [
+      {
+        "name": "The Functional Accent Rule",
+        "body": "Los colores cromáticos nunca se usan como decoración de marca; existen exclusivamente para comunicar estado del sistema o formato del documento.",
+        "section": "colors"
+      },
+      {
+        "name": "The Tabular Number Rule",
+        "body": "Todo valor numérico que represente peso en bytes, cantidad de documentos o fecha debe renderizarse con font-variant-numeric: tabular-nums.",
+        "section": "typography"
+      },
+      {
+        "name": "The No-Colored-Shadow Rule",
+        "body": "Ningún elemento puede proyectar sombras con tinte de color.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do utilizar Geist Sans y Geist Mono de forma estricta para todo el texto de la aplicación.",
+      "Do formatear todos los tamaños de archivo mediante la función uniforme formatBytes().",
+      "Do proveer atajos de teclado intuitivos (Esc para cerrar inspectores, ⌘U / Ctrl+U para abrir el explorador de archivos)."
+    ],
+    "donts": [
+      "Don't utilizar degradados de texto ni efectos de neón o halos de color.",
+      "Don't usar etiquetas kicker o subtítulos artificiales por encima de los encabezados principales.",
+      "Don't usar bordes izquierdos gruesos de color para resaltar alertas o tarjetas."
+    ]
+  }
+}
+

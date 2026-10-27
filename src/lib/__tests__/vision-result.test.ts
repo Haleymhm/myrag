@@ -16,18 +16,31 @@
  */
 
 import { describe, it, expect } from "vitest";
-import { safeParseVisionResult } from "@/lib/schemas";
+import {
+  safeParseVisionResult,
+  safeParseFactura,
+  safeParseRecibo,
+  safeParseContrato,
+} from "@/lib/schemas";
 import {
   validFactura,
   validRecibo,
   validContrato,
   validOtro,
   otroSinDescripcion,
+  facturaWithoutNumero,
+  reciboSinEstablecimiento,
+  contratoUnaParteOnly,
   resultConfianzaBaja,
   resultTipoMismatch,
   resultIdioma3Chars,
   resultConfianzaFueraRango,
 } from "./fixtures";
+
+/** Extrae el sub-objeto de `datos_extraidos` de un fixture con tipo `unknown`. */
+function subObject(raw: unknown, key: string): unknown {
+  return (raw as { datos_extraidos?: Record<string, unknown> })?.datos_extraidos?.[key];
+}
 
 describe("VisionResultSchema (top-level)", () => {
   // -------------------------------------------------------------------------
@@ -198,5 +211,62 @@ describe("VisionResultSchema (top-level)", () => {
   it("❌ rechaza payload string (no objeto)", () => {
     const result = safeParseVisionResult("esto no es un JSON");
     expect(result.success).toBe(false);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Helpers de parseo por tipo de documento
+// ---------------------------------------------------------------------------
+
+describe("Helpers safeParse por tipo de documento", () => {
+  it("✅ safeParseFactura devuelve los datos validados de una factura", () => {
+    const result = safeParseFactura(validFactura.datos_extraidos.factura);
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.numero_factura).toBe("F-2024-001");
+      expect(result.data.total).toBe(1210);
+    }
+  });
+
+  it("❌ safeParseFactura reporta los errores de una factura incompleta", () => {
+    const result = safeParseFactura(subObject(facturaWithoutNumero, "factura"));
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.errors.some((e) => e.includes("numero_factura"))).toBe(true);
+    }
+  });
+
+  it("✅ safeParseRecibo devuelve los datos validados de un recibo", () => {
+    const result = safeParseRecibo(validRecibo.datos_extraidos.recibo);
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.establecimiento).toBe("Supermercado Jumbo");
+      expect(result.data.total).toBe(4350);
+    }
+  });
+
+  it("❌ safeParseRecibo reporta los errores de un recibo incompleto", () => {
+    const result = safeParseRecibo(subObject(reciboSinEstablecimiento, "recibo"));
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.errors.some((e) => e.includes("establecimiento"))).toBe(true);
+    }
+  });
+
+  it("✅ safeParseContrato devuelve los datos validados de un contrato", () => {
+    const result = safeParseContrato(validContrato.datos_extraidos.contrato);
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.titulo).toBe("Contrato de Desarrollo de Software");
+      expect(result.data.partes).toHaveLength(2);
+    }
+  });
+
+  it("❌ safeParseContrato reporta los errores de un contrato incompleto", () => {
+    const result = safeParseContrato(subObject(contratoUnaParteOnly, "contrato"));
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.errors.some((e) => e.includes("partes"))).toBe(true);
+    }
   });
 });

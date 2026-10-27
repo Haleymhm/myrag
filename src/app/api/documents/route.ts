@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { ensureSchema, pool, type DocumentRow } from "@/lib/db";
+import { analyzeDocumentWithVision } from "@/lib/vision";
 
 const ALLOWED = [
   "image/png",
@@ -13,7 +14,8 @@ export async function GET() {
   try {
     await ensureSchema();
     const { rows } = await pool.query<DocumentRow>(
-      `SELECT id, filename, mime_type, size_bytes, created_at
+      `SELECT id, filename, mime_type, size_bytes, created_at,
+              document_type, extracted_data, analysis_status, analysis_error, analyzed_at
          FROM documents
         ORDER BY created_at DESC`,
     );
@@ -29,28 +31,63 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     await ensureSchema();
+    const url = new URL(request.url);
+    const shouldAutoAnalyze = url.searchParams.get("analyze") === "true";
+    const clientApiKey = request.headers.get("x-gemini-api-key") ?? undefined;
+
     const formData = await request.formData();
     const file = formData.get("file");
 
     if (!(file instanceof File)) {
-      return NextResponse.json({ error: "No file was provided." }, { status: 400 });
+      return NextResponse.json({ error: "No se proporcionó ningún archivo." }, { status: 400 });
     }
     if (!ALLOWED.includes(file.type)) {
       return NextResponse.json(
-        { error: `Unsupported file type: ${file.type || "unknown"}.` },
+        { error: `Tipo de archivo no admitido: ${file.type || "desconocido"}. Solo se admiten PDFs e imágenes.` },
         { status: 415 },
       );
     }
 
     const bytes = Buffer.from(await file.arrayBuffer());
     const { rows } = await pool.query<DocumentRow>(
-      `INSERT INTO documents (filename, mime_type, size_bytes, data)
-       VALUES ($1, $2, $3, $4)
-       RETURNING id, filename, mime_type, size_bytes, created_at`,
+      `INSERT INTO documents (filename, mime_type, size_bytes, data, analysis_status)
+       VALUES ($1, $2, $3, $4, 'pending')
+       RETURNING id, filename, mime_type, size_bytes, created_at,
+                 document_type, extracted_data, analysis_status, analysis_error, analyzed_at`,
       [file.name, file.type, bytes.length, bytes],
     );
 
-    return NextResponse.json({ document: rows[0] }, { status: 201 });
+    let document = rows[0];
+
+    // Optional auto-analysis on upload
+    if (shouldAutoAnalyze) {
+      try {
+        const extraction = await analyzeDocumentWithVision(bytes, file.type, clientApiKey);
+        const updateResult = await pool.query<DocumentRow>(
+          `UPDATE documents
+              SET document_type = $1,
+                  extracted_data = $2,
+                  analysis_status = 'completed',
+                  analysis_error = NULL,
+                  analyzed_at = NOW()
+            WHERE id = $3
+        RETURNING id, filename, mime_type, size_bytes, created_at,
+                  document_type, extracted_data, analysis_status, analysis_error, analyzed_at`,
+          [extraction.tipo_documento, JSON.stringify(extraction), document.id],
+        );
+        document = updateResult.rows[0];
+      } catch (analysisErr) {
+        const msg = (analysisErr as Error).message;
+        await pool.query(
+          "UPDATE documents SET analysis_status = 'failed', analysis_error = $1 WHERE id = $2",
+          [msg, document.id],
+        );
+        document.analysis_status = "failed";
+        document.analysis_error = msg;
+      }
+    }
+
+    return NextResponse.json({ document }, { status: 201 });
   } catch (error) {
     return NextResponse.json(
       { error: (error as Error).message },

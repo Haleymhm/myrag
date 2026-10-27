@@ -1,7 +1,7 @@
 import { Pool } from "pg";
 
 const connectionString =
-  process.env.DATABASE_URL ??
+  process.env.POSTGRES_URL ??
   "postgresql://postgres:postgres@localhost:5432/extracto";
 
 const globalForDb = globalThis as unknown as { extractoPool?: Pool };
@@ -48,6 +48,16 @@ async function initSchema(): Promise<void> {
         created_at  timestamptz NOT NULL DEFAULT now()
       )
     `);
+
+    // Schema migration for vision analysis and structured extraction
+    await client.query(`
+      ALTER TABLE documents ADD COLUMN IF NOT EXISTS document_type text;
+      ALTER TABLE documents ADD COLUMN IF NOT EXISTS extracted_data jsonb;
+      ALTER TABLE documents ADD COLUMN IF NOT EXISTS analysis_status text DEFAULT 'pending';
+      ALTER TABLE documents ADD COLUMN IF NOT EXISTS analysis_error text;
+      ALTER TABLE documents ADD COLUMN IF NOT EXISTS analyzed_at timestamptz;
+    `);
+
     await client.query(`
       CREATE TABLE IF NOT EXISTS document_chunks (
         id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -66,10 +76,19 @@ async function initSchema(): Promise<void> {
   }
 }
 
+export type DocumentType = "factura" | "recibo" | "contrato" | "otro";
+
+export type AnalysisStatus = "pending" | "processing" | "completed" | "failed";
+
 export type DocumentRow = {
   id: string;
   filename: string;
   mime_type: string;
   size_bytes: string;
   created_at: string;
+  document_type?: DocumentType | null;
+  extracted_data?: Record<string, unknown> | null;
+  analysis_status?: AnalysisStatus | null;
+  analysis_error?: string | null;
+  analyzed_at?: string | null;
 };

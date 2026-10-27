@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { ensureSchema, pool, type DocumentRow } from "@/lib/db";
 import { analyzeDocumentWithVision } from "@/lib/vision";
+import { safeParseVisionResult } from "@/lib/schemas";
 
 const ALLOWED = [
   "image/png",
@@ -33,7 +34,10 @@ export async function POST(request: Request) {
     await ensureSchema();
     const url = new URL(request.url);
     const shouldAutoAnalyze = url.searchParams.get("analyze") === "true";
-    const clientApiKey = request.headers.get("x-gemini-api-key") ?? undefined;
+    const clientApiKey =
+      request.headers.get("x-openrouter-api-key") ??
+      request.headers.get("x-gemini-api-key") ??
+      undefined;
 
     const formData = await request.formData();
     const file = formData.get("file");
@@ -63,19 +67,34 @@ export async function POST(request: Request) {
     if (shouldAutoAnalyze) {
       try {
         const extraction = await analyzeDocumentWithVision(bytes, file.type, clientApiKey);
-        const updateResult = await pool.query<DocumentRow>(
-          `UPDATE documents
-              SET document_type = $1,
-                  extracted_data = $2,
-                  analysis_status = 'completed',
-                  analysis_error = NULL,
-                  analyzed_at = NOW()
-            WHERE id = $3
-        RETURNING id, filename, mime_type, size_bytes, created_at,
-                  document_type, extracted_data, analysis_status, analysis_error, analyzed_at`,
-          [extraction.tipo_documento, JSON.stringify(extraction), document.id],
-        );
-        document = updateResult.rows[0];
+
+        // Validate the LLM output against Zod schemas — an incomplete document
+        // must be flagged instead of being persisted as a successful extraction.
+        const validation = safeParseVisionResult(extraction);
+
+        if (!validation.success) {
+          const errorSummary = `Errores de validación: ${validation.errors.join(" | ")}`;
+          await pool.query(
+            "UPDATE documents SET analysis_status = 'failed', analysis_error = $1 WHERE id = $2",
+            [errorSummary, document.id],
+          );
+          document.analysis_status = "failed";
+          document.analysis_error = errorSummary;
+        } else {
+          const updateResult = await pool.query<DocumentRow>(
+            `UPDATE documents
+                SET document_type = $1,
+                    extracted_data = $2,
+                    analysis_status = 'completed',
+                    analysis_error = NULL,
+                    analyzed_at = NOW()
+              WHERE id = $3
+            RETURNING id, filename, mime_type, size_bytes, created_at,
+                      document_type, extracted_data, analysis_status, analysis_error, analyzed_at`,
+            [validation.data.tipo_documento, JSON.stringify(validation.data), document.id],
+          );
+          document = updateResult.rows[0];
+        }
       } catch (analysisErr) {
         const msg = (analysisErr as Error).message;
         await pool.query(

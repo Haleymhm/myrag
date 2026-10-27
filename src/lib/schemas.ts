@@ -18,7 +18,12 @@ import { z } from "zod";
 // Shared primitives
 // ---------------------------------------------------------------------------
 
-/** Accepts ISO-8601 date strings like 2024-05-20 or 2024-05-20T14:30:00. */
+/**
+ * Accepts ISO-8601 date strings like 2024-05-20 or 2024-05-20T14:30:00.
+ * Uses strict calendar validation: 2024-02-30 is rejected because
+ * Date.parse() silently rolls over to March in V8, so we re-parse the
+ * date and compare the resulting day/month against the declared values.
+ */
 const isoDate = z
   .string()
   .trim()
@@ -26,9 +31,25 @@ const isoDate = z
     /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}(:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})?)?)?$/,
     "Formato de fecha inválido — se espera YYYY-MM-DD o ISO-8601",
   )
-  .refine((val) => !isNaN(Date.parse(val)), {
-    message: "Fecha inválida (fecha no existe en el calendario)",
-  });
+  .refine(
+    (val) => {
+      const ms = Date.parse(val);
+      if (isNaN(ms)) return false;
+      // Strict day/month check: parse the declared YYYY-MM-DD components and
+      // verify the constructed Date lands on the same calendar day (UTC).
+      const [yearStr, monthStr, dayStr] = val.split("T")[0].split("-");
+      const year = parseInt(yearStr, 10);
+      const month = parseInt(monthStr, 10); // 1-based
+      const day = parseInt(dayStr, 10);
+      const d = new Date(Date.UTC(year, month - 1, day));
+      return (
+        d.getUTCFullYear() === year &&
+        d.getUTCMonth() + 1 === month &&
+        d.getUTCDate() === day
+      );
+    },
+    { message: "Fecha inválida (fecha no existe en el calendario)" },
+  );
 
 /** Nullable, optional ISO date — used for most document date fields. */
 const optionalDate = isoDate.nullable().optional();

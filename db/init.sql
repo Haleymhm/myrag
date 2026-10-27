@@ -3,12 +3,17 @@ CREATE EXTENSION IF NOT EXISTS vector;
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
 CREATE TABLE IF NOT EXISTS documents (
-  id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  filename    text NOT NULL,
-  mime_type   text NOT NULL,
-  size_bytes  bigint NOT NULL,
-  data        bytea NOT NULL,
-  created_at  timestamptz NOT NULL DEFAULT now()
+  id              uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  filename        text NOT NULL,
+  mime_type       text NOT NULL,
+  size_bytes      bigint NOT NULL,
+  data            bytea NOT NULL,
+  document_type   text,
+  extracted_data  jsonb,
+  analysis_status text DEFAULT 'pending',
+  analysis_error  text,
+  analyzed_at     timestamptz,
+  created_at      timestamptz NOT NULL DEFAULT now()
 );
 
 CREATE TABLE IF NOT EXISTS document_chunks (

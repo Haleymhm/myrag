@@ -1,7 +1,10 @@
 /**
  * Vision LLM Extraction Service
- * Uses Google Gemini (gemini-3.8-flash) with multimodal vision capabilities
- * to detect document types (factura, recibo, contrato, otro) and extract structured JSON data.
+ * Uses OpenRouter with DeepSeek V4.1 Flash (multimodal vision + OCR) to detect
+ * document types (factura, recibo, contrato, otro) and extract structured JSON data.
+ *
+ * API reference: https://openrouter.ai/docs
+ * Model: deepseek/deepseek-v4.1-flash
  */
 
 export type DocumentClassification = "factura" | "recibo" | "contrato" | "otro";
@@ -119,193 +122,254 @@ export interface VisionExtractionResult {
   };
 }
 
+// ---------------------------------------------------------------------------
+// OpenAI-compatible JSON Schema for structured output (OpenRouter format)
+// Uses additionalProperties: false to enable strict mode on supporting models.
+// ---------------------------------------------------------------------------
 const DOCUMENT_SCHEMA = {
-  type: "OBJECT",
+  type: "object",
   properties: {
     tipo_documento: {
-      type: "STRING",
+      type: "string",
       enum: ["factura", "recibo", "contrato", "otro"],
       description: "Clasificación estricta del documento",
     },
     confianza: {
-      type: "NUMBER",
+      type: "number",
       description: "Nivel de confianza en la clasificación entre 0.0 y 1.0",
     },
     resumen: {
-      type: "STRING",
-      description: "Resumen ejecutivo en español de 1 a 3 oraciones sobre el contenido y objeto del documento",
+      type: "string",
+      description:
+        "Resumen ejecutivo en español de 1 a 3 oraciones sobre el contenido y objeto del documento",
     },
     idioma: {
-      type: "STRING",
+      type: "string",
       description: "Código de idioma ISO (ej. 'es', 'en')",
     },
     datos_extraidos: {
-      type: "OBJECT",
+      type: "object",
       properties: {
         factura: {
-          type: "OBJECT",
+          type: "object",
           properties: {
-            numero_factura: { type: "STRING" },
-            serie: { type: "STRING" },
-            fecha_emision: { type: "STRING" },
-            fecha_vencimiento: { type: "STRING" },
-            moneda: { type: "STRING" },
+            numero_factura: { type: "string" },
+            serie: { type: "string" },
+            fecha_emision: { type: "string" },
+            fecha_vencimiento: { type: "string" },
+            moneda: { type: "string" },
             emisor: {
-              type: "OBJECT",
+              type: "object",
               properties: {
-                nombre: { type: "STRING" },
-                identificacion_fiscal: { type: "STRING" },
-                direccion: { type: "STRING" },
-                telefono: { type: "STRING" },
-                email: { type: "STRING" },
+                nombre: { type: "string" },
+                identificacion_fiscal: { type: "string" },
+                direccion: { type: "string" },
+                telefono: { type: "string" },
+                email: { type: "string" },
               },
+              additionalProperties: false,
             },
             receptor: {
-              type: "OBJECT",
+              type: "object",
               properties: {
-                nombre: { type: "STRING" },
-                identificacion_fiscal: { type: "STRING" },
-                direccion: { type: "STRING" },
-                email: { type: "STRING" },
+                nombre: { type: "string" },
+                identificacion_fiscal: { type: "string" },
+                direccion: { type: "string" },
+                email: { type: "string" },
               },
+              additionalProperties: false,
             },
             items: {
-              type: "ARRAY",
+              type: "array",
               items: {
-                type: "OBJECT",
+                type: "object",
                 properties: {
-                  descripcion: { type: "STRING" },
-                  cantidad: { type: "NUMBER" },
-                  precio_unitario: { type: "NUMBER" },
-                  descuento: { type: "NUMBER" },
-                  subtotal: { type: "NUMBER" },
+                  descripcion: { type: "string" },
+                  cantidad: { type: "number" },
+                  precio_unitario: { type: "number" },
+                  descuento: { type: "number" },
+                  subtotal: { type: "number" },
                 },
                 required: ["descripcion"],
+                additionalProperties: false,
               },
             },
-            subtotal: { type: "NUMBER" },
+            subtotal: { type: "number" },
             impuestos: {
-              type: "OBJECT",
+              type: "object",
               properties: {
-                tipo: { type: "STRING" },
-                tasa_porcentaje: { type: "NUMBER" },
-                monto: { type: "NUMBER" },
+                tipo: { type: "string" },
+                tasa_porcentaje: { type: "number" },
+                monto: { type: "number" },
               },
+              additionalProperties: false,
             },
-            descuento_total: { type: "NUMBER" },
-            total: { type: "NUMBER" },
-            metodo_pago: { type: "STRING" },
-            condiciones_pago: { type: "STRING" },
+            descuento_total: { type: "number" },
+            total: { type: "number" },
+            metodo_pago: { type: "string" },
+            condiciones_pago: { type: "string" },
           },
+          additionalProperties: false,
         },
         recibo: {
-          type: "OBJECT",
+          type: "object",
           properties: {
-            numero_recibo: { type: "STRING" },
-            establecimiento: { type: "STRING" },
-            identificacion_fiscal: { type: "STRING" },
-            direccion: { type: "STRING" },
-            fecha_hora: { type: "STRING" },
+            numero_recibo: { type: "string" },
+            establecimiento: { type: "string" },
+            identificacion_fiscal: { type: "string" },
+            direccion: { type: "string" },
+            fecha_hora: { type: "string" },
             items: {
-              type: "ARRAY",
+              type: "array",
               items: {
-                type: "OBJECT",
+                type: "object",
                 properties: {
-                  nombre: { type: "STRING" },
-                  cantidad: { type: "NUMBER" },
-                  precio: { type: "NUMBER" },
+                  nombre: { type: "string" },
+                  cantidad: { type: "number" },
+                  precio: { type: "number" },
                 },
                 required: ["nombre"],
+                additionalProperties: false,
               },
             },
-            subtotal: { type: "NUMBER" },
-            propina: { type: "NUMBER" },
-            impuesto: { type: "NUMBER" },
-            total: { type: "NUMBER" },
-            metodo_pago: { type: "STRING" },
-            ultimos_4_digitos_tarjeta: { type: "STRING" },
-            numero_autorizacion: { type: "STRING" },
+            subtotal: { type: "number" },
+            propina: { type: "number" },
+            impuesto: { type: "number" },
+            total: { type: "number" },
+            metodo_pago: { type: "string" },
+            ultimos_4_digitos_tarjeta: { type: "string" },
+            numero_autorizacion: { type: "string" },
           },
+          additionalProperties: false,
         },
         contrato: {
-          type: "OBJECT",
+          type: "object",
           properties: {
-            titulo: { type: "STRING" },
-            tipo_contrato: { type: "STRING" },
-            fecha_firma: { type: "STRING" },
-            lugar_firma: { type: "STRING" },
+            titulo: { type: "string" },
+            tipo_contrato: { type: "string" },
+            fecha_firma: { type: "string" },
+            lugar_firma: { type: "string" },
             vigencia: {
-              type: "OBJECT",
+              type: "object",
               properties: {
-                fecha_inicio: { type: "STRING" },
-                fecha_fin: { type: "STRING" },
-                duracion: { type: "STRING" },
-                renovacion_automatica: { type: "BOOLEAN" },
+                fecha_inicio: { type: "string" },
+                fecha_fin: { type: "string" },
+                duracion: { type: "string" },
+                renovacion_automatica: { type: "boolean" },
               },
+              additionalProperties: false,
             },
             partes: {
-              type: "ARRAY",
+              type: "array",
               items: {
-                type: "OBJECT",
+                type: "object",
                 properties: {
-                  nombre: { type: "STRING" },
-                  rol: { type: "STRING" },
-                  identificacion: { type: "STRING" },
-                  representante_legal: { type: "STRING" },
-                  domicilio: { type: "STRING" },
+                  nombre: { type: "string" },
+                  rol: { type: "string" },
+                  identificacion: { type: "string" },
+                  representante_legal: { type: "string" },
+                  domicilio: { type: "string" },
                 },
                 required: ["nombre", "rol"],
+                additionalProperties: false,
               },
             },
-            objeto_del_contrato: { type: "STRING" },
+            objeto_del_contrato: { type: "string" },
             contraprestacion_economica: {
-              type: "OBJECT",
+              type: "object",
               properties: {
-                monto: { type: "NUMBER" },
-                moneda: { type: "STRING" },
-                forma_pago: { type: "STRING" },
+                monto: { type: "number" },
+                moneda: { type: "string" },
+                forma_pago: { type: "string" },
               },
+              additionalProperties: false,
             },
             clausulas_clave: {
-              type: "ARRAY",
+              type: "array",
               items: {
-                type: "OBJECT",
+                type: "object",
                 properties: {
-                  numero: { type: "STRING" },
-                  titulo: { type: "STRING" },
-                  resumen: { type: "STRING" },
+                  numero: { type: "string" },
+                  titulo: { type: "string" },
+                  resumen: { type: "string" },
                 },
                 required: ["titulo", "resumen"],
+                additionalProperties: false,
               },
             },
-            penalidades_o_recision: { type: "STRING" },
-            jurisdiccion_o_ley_aplicable: { type: "STRING" },
+            penalidades_o_recision: { type: "string" },
+            jurisdiccion_o_ley_aplicable: { type: "string" },
             firmas_detectadas: {
-              type: "ARRAY",
+              type: "array",
               items: {
-                type: "OBJECT",
+                type: "object",
                 properties: {
-                  nombre: { type: "STRING" },
-                  firmado: { type: "BOOLEAN" },
+                  nombre: { type: "string" },
+                  firmado: { type: "boolean" },
                 },
                 required: ["nombre", "firmado"],
+                additionalProperties: false,
               },
             },
           },
+          additionalProperties: false,
         },
         otro: {
-          type: "OBJECT",
+          type: "object",
           properties: {
-            descripcion: { type: "STRING" },
-            tema_principal: { type: "STRING" },
+            descripcion: { type: "string" },
+            tema_principal: { type: "string" },
           },
+          additionalProperties: false,
         },
       },
+      additionalProperties: false,
     },
   },
   required: ["tipo_documento", "confianza", "resumen", "datos_extraidos"],
+  additionalProperties: false,
 };
 
+// ---------------------------------------------------------------------------
+// Model used for vision analysis via OpenRouter
+// ---------------------------------------------------------------------------
+const OPENROUTER_MODEL = "deepseek/deepseek-v4.1-flash";
+const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
+
+// ---------------------------------------------------------------------------
+// Helpers to build the multimodal content part for images vs PDFs.
+// OpenRouter uses the `type: "file"` block for PDFs and `type: "image_url"`
+// for raster images (PNG, JPEG, WEBP, GIF).
+// ---------------------------------------------------------------------------
+function buildMediaPart(
+  base64Data: string,
+  mimeType: string,
+  filename: string,
+): Record<string, unknown> {
+  if (mimeType === "application/pdf") {
+    // OpenRouter PDF block — works even for scanned/image-based PDFs via
+    // the model's built-in file-parser fallback.
+    return {
+      type: "file",
+      file: {
+        filename,
+        file_data: `data:application/pdf;base64,${base64Data}`,
+      },
+    };
+  }
+
+  // Standard multimodal image block (PNG, JPEG, WEBP, GIF)
+  return {
+    type: "image_url",
+    image_url: {
+      url: `data:${mimeType};base64,${base64Data}`,
+    },
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Main analysis function
+// ---------------------------------------------------------------------------
 export async function analyzeDocumentWithVision(
   fileBuffer: Buffer,
   mimeType: string,
@@ -313,21 +377,20 @@ export async function analyzeDocumentWithVision(
 ): Promise<VisionExtractionResult> {
   const apiKey =
     customApiKey ||
-    process.env.GEMINI_API_KEY ||
-    process.env.GOOGLE_API_KEY ||
-    process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+    process.env.OPENROUTER_API_KEY ||
+    process.env.NEXT_PUBLIC_OPENROUTER_API_KEY;
 
   if (!apiKey) {
     throw new Error(
-      "Clave API no encontrada. Configura GEMINI_API_KEY en .env.local o ingrésala en la interfaz.",
+      "Clave API no encontrada. Configura OPENROUTER_API_KEY en .env.local o ingrésala en la interfaz.",
     );
   }
 
   const base64Data = fileBuffer.toString("base64");
 
   const prompt = `
-Eres un sistema de visión artificial experto en análisis documental.
-Examina detenidamente el documento provisto (imagen o PDF).
+Eres un sistema de visión artificial experto en análisis documental con capacidades OCR avanzadas.
+Examina detenidamente el documento provisto (imagen o PDF), leyendo todo el texto visible con precisión.
 
 Instrucciones:
 1. Detecta si el documento corresponde a una 'factura', un 'recibo' (ticket de compra, recibo de pago) o un 'contrato' (acuerdo de voluntades, arrendamiento, prestación de servicios, laboral, etc.). Si no corresponde a ninguno, márcalo como 'otro'.
@@ -336,45 +399,57 @@ Instrucciones:
 4. Genera un resumen ejecutivo claro en español explicando de qué trata el documento y sus montos o partes más importantes.
 `.trim();
 
-  // Model selection per gemini-api-dev skill: gemini-3.8-flash for multimodal vision
-  const model = "gemini-3.8-flash";
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+  // Derive a safe filename for the file block (used by OpenRouter for PDF routing)
+  const ext = mimeType === "application/pdf" ? "pdf"
+    : mimeType === "image/png" ? "png"
+    : mimeType === "image/jpeg" ? "jpg"
+    : mimeType === "image/webp" ? "webp"
+    : "img";
+  const filename = `document.${ext}`;
+
+  const mediaPart = buildMediaPart(base64Data, mimeType, filename);
 
   const requestBody = {
-    contents: [
+    model: OPENROUTER_MODEL,
+    messages: [
       {
         role: "user",
-        parts: [
-          {
-            inlineData: {
-              mimeType,
-              data: base64Data,
-            },
-          },
-          {
-            text: prompt,
-          },
+        content: [
+          { type: "text", text: prompt },
+          mediaPart,
         ],
       },
     ],
-    generationConfig: {
-      responseMimeType: "application/json",
-      responseSchema: DOCUMENT_SCHEMA,
-      temperature: 0.1,
+    response_format: {
+      type: "json_schema",
+      json_schema: {
+        name: "document_extraction",
+        strict: true,
+        schema: DOCUMENT_SCHEMA,
+      },
+    },
+    temperature: 0.1,
+    // Ensures OpenRouter only routes to providers that support structured output + vision
+    provider: {
+      require_parameters: true,
     },
   };
 
-  const response = await fetch(url, {
+  const response = await fetch(OPENROUTER_API_URL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      Authorization: `Bearer ${apiKey}`,
+      // Recommended OpenRouter headers for attribution / rate-limit management
+      "HTTP-Referer": "https://github.com/extracto",
+      "X-Title": "Extracto Document Analysis",
     },
     body: JSON.stringify(requestBody),
   });
 
   if (!response.ok) {
     const errorBody = await response.text();
-    let message = `Gemini API error (${response.status}): ${response.statusText}`;
+    let message = `OpenRouter API error (${response.status}): ${response.statusText}`;
     try {
       const parsed = JSON.parse(errorBody);
       if (parsed.error?.message) {
@@ -387,8 +462,7 @@ Instrucciones:
   }
 
   const data = await response.json();
-  const rawText =
-    data.candidates?.[0]?.content?.parts?.[0]?.text;
+  const rawText = data.choices?.[0]?.message?.content;
 
   if (!rawText) {
     throw new Error("No se recibió respuesta estructurada del modelo de visión.");
@@ -410,4 +484,3 @@ Instrucciones:
     );
   }
 }
-

@@ -12,7 +12,7 @@ export async function POST(
     await ensureSchema();
 
     let apiKeyFromClient: string | undefined;
-    const headerKey = request.headers.get("x-gemini-api-key");
+    const headerKey = request.headers.get("x-openrouter-api-key");
     if (headerKey) {
       apiKeyFromClient = headerKey;
     } else {

@@ -202,7 +202,7 @@ export default function Home() {
   const [analyzingDocId, setAnalyzingDocId] = useState<string | null>(null);
   const [autoAnalyzeOnUpload, setAutoAnalyzeOnUpload] = useState(true);
 
-  // Gemini API Key management
+  // OpenRouter API Key management
   const [apiKey, setApiKey] = useState<string>("");
   const [showKeyModal, setShowKeyModal] = useState(false);
   const [tempApiKey, setTempApiKey] = useState("");
@@ -212,7 +212,7 @@ export default function Home() {
 
   // Load API Key from localStorage
   useEffect(() => {
-    const saved = localStorage.getItem("extracto_gemini_api_key");
+    const saved = localStorage.getItem("extracto_openrouter_api_key");
     if (saved) {
       setApiKey(saved);
       setTempApiKey(saved);
@@ -223,9 +223,9 @@ export default function Home() {
     const trimmed = key.trim();
     setApiKey(trimmed);
     if (trimmed) {
-      localStorage.setItem("extracto_gemini_api_key", trimmed);
+      localStorage.setItem("extracto_openrouter_api_key", trimmed);
     } else {
-      localStorage.removeItem("extracto_gemini_api_key");
+      localStorage.removeItem("extracto_openrouter_api_key");
     }
     setShowKeyModal(false);
   }, []);
@@ -315,7 +315,7 @@ export default function Home() {
           "Content-Type": "application/json",
         };
         if (apiKey) {
-          headers["x-gemini-api-key"] = apiKey;
+          headers["x-openrouter-api-key"] = apiKey;
         }
 
         const res = await fetch(`/api/documents/${docId}/analyze`, {
@@ -357,7 +357,7 @@ export default function Home() {
 
         const headers: Record<string, string> = {};
         if (apiKey) {
-          headers["x-gemini-api-key"] = apiKey;
+          headers["x-openrouter-api-key"] = apiKey;
         }
 
         const url = autoAnalyzeOnUpload
@@ -477,7 +477,7 @@ export default function Home() {
                   EXTRACTO
                 </span>
                 <span className="rounded bg-zinc-200/60 px-1.5 py-0.5 text-[11px] font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">
-                  Visión LLM · Gemini 3.8
+                  Visión LLM · DeepSeek V4.1
                 </span>
               </div>
             </div>
@@ -485,7 +485,7 @@ export default function Home() {
 
           {/* Telemetry and Controls */}
           <div className="flex items-center gap-3">
-            {/* Gemini API Key status chip */}
+            {/* OpenRouter API Key status chip */}
             <button
               type="button"
               onClick={() => {
@@ -493,7 +493,7 @@ export default function Home() {
                 setShowKeyModal(true);
               }}
               className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white/80 px-2.5 py-1 text-xs text-zinc-700 shadow-2xs transition hover:bg-zinc-100 dark:border-zinc-800 dark:bg-zinc-900/80 dark:text-zinc-300 dark:hover:bg-zinc-800"
-              title="Configurar clave API de Gemini"
+              title="Configurar clave API de OpenRouter"
             >
               <svg className="h-3.5 w-3.5 text-zinc-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M21 2l-2 2m-1-1l2 2" />
@@ -1397,7 +1397,7 @@ export default function Home() {
                         Documento pendiente de análisis
                       </h4>
                       <p className="mt-1 max-w-xs text-[11px] text-zinc-500 dark:text-zinc-400">
-                        Envía este archivo al modelo multimodal Gemini 3.8 Flash para clasificarlo como factura, recibo o contrato y extraer sus datos en JSON.
+                        Envía este archivo al modelo multimodal DeepSeek V4.1 Flash (vía OpenRouter) para clasificarlo como factura, recibo o contrato y extraer sus datos en JSON.
                       </p>
                       <button
                         type="button"
@@ -1727,7 +1727,7 @@ export default function Home() {
         </div>
       )}
 
-      {/* Gemini API Key Configuration Modal */}
+      {/* OpenRouter API Key Configuration Modal */}
       {showKeyModal && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-2xs"
@@ -1739,7 +1739,7 @@ export default function Home() {
           >
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-semibold text-zinc-900 dark:text-white">
-                Clave API de Google Gemini (Visión LLM)
+                Clave API de OpenRouter (Visión LLM)
               </h3>
               <button
                 type="button"
@@ -1754,17 +1754,17 @@ export default function Home() {
             </div>
 
             <p className="mt-2 text-xs leading-relaxed text-zinc-500 dark:text-zinc-400">
-              Para analizar y extraer datos de facturas, recibos y contratos, se utiliza el modelo multimodal <code className="font-mono text-zinc-700 dark:text-zinc-300">gemini-3.8-flash</code>.
+              Para analizar y extraer datos de facturas, recibos y contratos, se utiliza el modelo multimodal <code className="font-mono text-zinc-700 dark:text-zinc-300">deepseek/deepseek-v4.1-flash</code> vía OpenRouter.
             </p>
 
             <div className="mt-4">
-              <label htmlFor="gemini-key-input" className="block text-xs font-medium text-zinc-700 dark:text-zinc-300">
-                Gemini API Key
+              <label htmlFor="openrouter-key-input" className="block text-xs font-medium text-zinc-700 dark:text-zinc-300">
+                OpenRouter API Key
               </label>
               <input
-                id="gemini-key-input"
+                id="openrouter-key-input"
                 type="password"
-                placeholder="AIzaSy..."
+                placeholder="sk-or-..."
                 value={tempApiKey}
                 onChange={(e) => setTempApiKey(e.target.value)}
                 className="mt-1.5 w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 font-mono text-xs text-zinc-900 focus:border-zinc-400 focus:outline-none dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:focus:border-zinc-600"
@@ -1772,14 +1772,14 @@ export default function Home() {
               <p className="mt-1.5 text-[11px] text-zinc-400">
                 Puedes obtener una clave gratuita en{" "}
                 <a
-                  href="https://aistudio.google.com/app/apikey"
+                  href="https://openrouter.ai/keys"
                   target="_blank"
                   rel="noreferrer"
                   className="text-zinc-700 underline dark:text-zinc-300"
                 >
-                  Google AI Studio ↗
+                  openrouter.ai/keys ↗
                 </a>
-                . También puedes definirla como <code className="font-mono">GEMINI_API_KEY</code> en tu archivo <code className="font-mono">.env.local</code>.
+                . También puedes definirla como <code className="font-mono">OPENROUTER_API_KEY</code> en tu archivo <code className="font-mono">.env.local</code>.
               </p>
             </div>
 

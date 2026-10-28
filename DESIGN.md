@@ -143,7 +143,7 @@ La interfaz opera sobre un modelo de capas tonales planas y bordes de precisión
 ### Buttons
 - **Shape:** Borde redondeado suave (8px, `rounded-lg`).
 - **Primary:** Fondo negro (#18181b / #ffffff), texto blanco (#fafafa / #09090b), padding de 6px 14px, tipografía 12px font-medium.
-- **Ghost / Subtle:** Fondo transparente, texto zinc (#71717a), transición a fondo zinc suave (`hover:bg-zinc-100 dark:hover:bg-zinc-800`).
+- **Ghost / Subtle:** Fondo transparente, texto zinc (#71717a), transición a fondo zinc suave (`hover:bg-cyan-100 dark:hover:bg-cyan-800`).
 
 ### Chips & Badges
 - **Formato PDF:** Fondo rojo translúcido (`bg-red-500/10`), borde rojo sutil (`border-red-500/20`), texto rojo vivo (`text-red-600 dark:text-red-400`).

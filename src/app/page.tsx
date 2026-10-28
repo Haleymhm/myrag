@@ -100,7 +100,7 @@ function getFormatBadge(mimeType: string) {
   return {
     label: "DOC",
     className:
-      "bg-zinc-500/10 text-zinc-600 dark:text-zinc-400 border border-zinc-500/20",
+      "bg-cyan-500/10 text-zinc-600 dark:text-zinc-400 border border-zinc-500/20",
   };
 }
 
@@ -142,13 +142,13 @@ function getTypeBadge(type?: DocumentType | null, status?: AnalysisStatus | null
       return {
         label: "Otro Doc",
         className:
-          "bg-zinc-500/10 text-zinc-700 dark:text-zinc-300 border border-zinc-500/20",
+          "bg-cyan-500/10 text-zinc-700 dark:text-zinc-300 border border-zinc-500/20",
       };
     default:
       return {
         label: "Sin analizar",
         className:
-          "bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700",
+          "bg-cyan-100 text-zinc-500 dark:bg-cyan-800 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700",
       };
   }
 }
@@ -457,12 +457,12 @@ export default function Home() {
   const donePendingCount = pending.filter((item) => item.status === "done").length;
 
   return (
-    <div className="flex min-h-screen flex-col bg-zinc-50 text-zinc-900 antialiased dark:bg-[#09090b] dark:text-zinc-100">
+    <div className="flex min-h-screen flex-col bg-cyan-50 text-zinc-900 antialiased dark:bg-[#09090b] dark:text-zinc-100">
       {/* Top Navigation Shell */}
-      <header className="sticky top-0 z-30 border-b border-zinc-200/80 bg-zinc-50/90 backdrop-blur-md dark:border-zinc-800/80 dark:bg-[#09090b]/90">
+      <header className="sticky top-0 z-30 border-b border-zinc-200/80 bg-cyan-50/90 backdrop-blur-md dark:border-zinc-800/80 dark:bg-[#09090b]/90">
         <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6">
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zinc-900 text-white shadow-xs dark:bg-white dark:text-black">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-cyan-900 text-white shadow-xs dark:bg-white dark:text-black">
               {/* Minimalist Document Vision Glyph */}
               <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M4 4v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6H6a2 2 0 0 0-2 2z" />
@@ -476,7 +476,7 @@ export default function Home() {
                 <span className="font-semibold tracking-tight text-sm text-zinc-900 dark:text-white">
                   EXTRACTO
                 </span>
-                <span className="rounded bg-zinc-200/60 px-1.5 py-0.5 text-[11px] font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">
+                <span className="rounded bg-cyan-200/60 px-1.5 py-0.5 text-[11px] font-medium text-zinc-600 dark:bg-cyan-800 dark:text-zinc-400">
                   Visión LLM · DeepSeek V4.1
                 </span>
               </div>
@@ -492,7 +492,7 @@ export default function Home() {
                 setTempApiKey(apiKey);
                 setShowKeyModal(true);
               }}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white/80 px-2.5 py-1 text-xs text-zinc-700 shadow-2xs transition hover:bg-zinc-100 dark:border-zinc-800 dark:bg-zinc-900/80 dark:text-zinc-300 dark:hover:bg-zinc-800"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white/80 px-2.5 py-1 text-xs text-zinc-700 shadow-2xs transition hover:bg-cyan-100 dark:border-zinc-800 dark:bg-cyan-900/80 dark:text-zinc-300 dark:hover:bg-cyan-800"
               title="Configurar clave API de OpenRouter"
             >
               <svg className="h-3.5 w-3.5 text-zinc-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -507,7 +507,7 @@ export default function Home() {
               <span className={`h-1.5 w-1.5 rounded-full ${apiKey ? "bg-emerald-500" : "bg-amber-500"}`} />
             </button>
 
-            <div className="hidden items-center gap-2 rounded-full border border-zinc-200 bg-white/70 px-3 py-1 text-xs dark:border-zinc-800 dark:bg-zinc-900/70 md:flex">
+            <div className="hidden items-center gap-2 rounded-full border border-zinc-200 bg-white/70 px-3 py-1 text-xs dark:border-zinc-800 dark:bg-cyan-900/70 md:flex">
               {dbError ? (
                 <>
                   <span className="h-2 w-2 rounded-full bg-amber-500" />
@@ -533,13 +533,13 @@ export default function Home() {
             <button
               type="button"
               onClick={() => inputRef.current?.click()}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-zinc-900 px-3 py-1.5 text-xs font-medium text-white shadow-2xs transition-colors hover:bg-zinc-800 active:bg-zinc-950 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-cyan-900 px-3 py-1.5 text-xs font-medium text-white shadow-2xs transition-colors hover:bg-cyan-800 active:bg-cyan-950 dark:bg-white dark:text-zinc-900 dark:hover:bg-cyan-200"
             >
               <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M12 5v14M5 12h14" />
               </svg>
               <span>Subir</span>
-              <kbd className="ml-1 hidden rounded bg-zinc-700/50 px-1 py-0.5 font-mono text-[11px] text-zinc-300 dark:bg-zinc-200 dark:text-zinc-600 sm:inline-block">
+              <kbd className="ml-1 hidden rounded bg-cyan-700/50 px-1 py-0.5 font-mono text-[11px] text-zinc-300 dark:bg-cyan-200 dark:text-zinc-600 sm:inline-block">
                 ⌘U
               </kbd>
             </button>
@@ -572,7 +572,7 @@ export default function Home() {
                 <button
                   type="button"
                   onClick={copyDockerCommand}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-amber-300 bg-white px-2.5 py-1.5 font-mono text-xs text-amber-900 shadow-2xs transition hover:bg-amber-50 dark:border-amber-800 dark:bg-zinc-900 dark:text-amber-300 dark:hover:bg-zinc-800"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-amber-300 bg-white px-2.5 py-1.5 font-mono text-xs text-amber-900 shadow-2xs transition hover:bg-amber-50 dark:border-amber-800 dark:bg-cyan-900 dark:text-amber-300 dark:hover:bg-cyan-800"
                 >
                   <code>docker compose up -d</code>
                   <span className="text-[11px] text-zinc-400">
@@ -606,11 +606,11 @@ export default function Home() {
           onClick={() => inputRef.current?.click()}
           className={`group relative flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed p-8 text-center transition-all duration-200 ${
             dragging
-              ? "border-zinc-900 bg-zinc-100/80 dark:border-zinc-100 dark:bg-zinc-900/60"
-              : "border-zinc-200 bg-white/40 hover:border-zinc-400 hover:bg-white/80 dark:border-zinc-800 dark:bg-zinc-900/20 dark:hover:border-zinc-700 dark:hover:bg-zinc-900/40"
+              ? "border-zinc-900 bg-cyan-100/80 dark:border-zinc-100 dark:bg-cyan-900/60"
+              : "border-zinc-200 bg-white/40 hover:border-zinc-400 hover:bg-white/80 dark:border-zinc-800 dark:bg-cyan-900/20 dark:hover:border-zinc-700 dark:hover:bg-cyan-900/40"
           }`}
         >
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-zinc-200 bg-white shadow-2xs transition-transform duration-200 group-hover:scale-105 dark:border-zinc-800 dark:bg-zinc-900">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-zinc-200 bg-white shadow-2xs transition-transform duration-200 group-hover:scale-105 dark:border-zinc-800 dark:bg-cyan-900">
             <svg
               className="h-6 w-6 text-zinc-500 transition-colors group-hover:text-zinc-900 dark:text-zinc-400 dark:group-hover:text-zinc-100"
               viewBox="0 0 24 24"
@@ -633,17 +633,17 @@ export default function Home() {
           </p>
 
           <div className="mt-2 flex flex-wrap items-center justify-center gap-1.5 text-[11px] text-zinc-400 dark:text-zinc-500">
-            <span className="rounded bg-zinc-100 px-1.5 py-0.5 dark:bg-zinc-800">PDF</span>
-            <span className="rounded bg-zinc-100 px-1.5 py-0.5 dark:bg-zinc-800">PNG</span>
-            <span className="rounded bg-zinc-100 px-1.5 py-0.5 dark:bg-zinc-800">JPEG</span>
-            <span className="rounded bg-zinc-100 px-1.5 py-0.5 dark:bg-zinc-800">WEBP</span>
+            <span className="rounded bg-cyan-100 px-1.5 py-0.5 dark:bg-cyan-800">PDF</span>
+            <span className="rounded bg-cyan-100 px-1.5 py-0.5 dark:bg-cyan-800">PNG</span>
+            <span className="rounded bg-cyan-100 px-1.5 py-0.5 dark:bg-cyan-800">JPEG</span>
+            <span className="rounded bg-cyan-100 px-1.5 py-0.5 dark:bg-cyan-800">WEBP</span>
             <span className="text-zinc-300 dark:text-zinc-700">·</span>
             <span>Detección inteligente de Facturas, Recibos y Contratos</span>
           </div>
 
           {/* Auto-analyze Toggle */}
           <div
-            className="mt-4 flex items-center gap-2 rounded-full border border-zinc-200 bg-white/90 px-3 py-1 text-xs text-zinc-700 dark:border-zinc-800 dark:bg-zinc-900/90 dark:text-zinc-300"
+            className="mt-4 flex items-center gap-2 rounded-full border border-zinc-200 bg-white/90 px-3 py-1 text-xs text-zinc-700 dark:border-zinc-800 dark:bg-cyan-900/90 dark:text-zinc-300"
             onClick={(e) => e.stopPropagation()}
           >
             <input
@@ -651,7 +651,7 @@ export default function Home() {
               id="auto-analyze"
               checked={autoAnalyzeOnUpload}
               onChange={(e) => setAutoAnalyzeOnUpload(e.target.checked)}
-              className="h-3.5 w-3.5 rounded border-zinc-300 text-zinc-900 focus:ring-0 dark:border-zinc-700 dark:bg-zinc-800"
+              className="h-3.5 w-3.5 rounded border-zinc-300 text-zinc-900 focus:ring-0 dark:border-zinc-700 dark:bg-cyan-800"
             />
             <label htmlFor="auto-analyze" className="cursor-pointer select-none text-[11px]">
               Analizar automáticamente con Visión IA al subir
@@ -673,7 +673,7 @@ export default function Home() {
 
         {/* Staging Queue */}
         {pending.length > 0 && (
-          <section className="mt-8 rounded-2xl border border-zinc-200 bg-white p-5 shadow-2xs dark:border-zinc-800 dark:bg-zinc-950">
+          <section className="mt-8 rounded-2xl border border-zinc-200 bg-white p-5 shadow-2xs dark:border-zinc-800 dark:bg-cyan-950">
             <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-zinc-100 pb-4 dark:border-zinc-900">
               <div className="flex items-center gap-2">
                 <h2 className="text-sm font-semibold tracking-tight text-zinc-900 dark:text-white">
@@ -697,7 +697,7 @@ export default function Home() {
                     urlsRef.current.clear();
                     setPending([]);
                   }}
-                  className="rounded-lg px-2.5 py-1 text-xs text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-zinc-200"
+                  className="rounded-lg px-2.5 py-1 text-xs text-zinc-500 transition hover:bg-cyan-100 hover:text-zinc-800 dark:text-zinc-400 dark:hover:bg-cyan-900 dark:hover:text-zinc-200"
                 >
                   Cancelar todo
                 </button>
@@ -705,7 +705,7 @@ export default function Home() {
                   type="button"
                   onClick={uploadAll}
                   disabled={pendingCount === 0}
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-zinc-900 px-3.5 py-1.5 text-xs font-medium text-white transition disabled:cursor-not-allowed disabled:opacity-40 dark:bg-white dark:text-zinc-900"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-cyan-900 px-3.5 py-1.5 text-xs font-medium text-white transition disabled:cursor-not-allowed disabled:opacity-40 dark:bg-white dark:text-zinc-900"
                 >
                   {pendingCount > 0 ? (
                     <>
@@ -727,9 +727,9 @@ export default function Home() {
                 return (
                   <div
                     key={item.key}
-                    className="flex flex-col overflow-hidden rounded-xl border border-zinc-200 bg-zinc-50/50 transition-colors dark:border-zinc-800/80 dark:bg-zinc-900/40"
+                    className="flex flex-col overflow-hidden rounded-xl border border-zinc-200 bg-cyan-50/50 transition-colors dark:border-zinc-800/80 dark:bg-cyan-900/40"
                   >
-                    <div className="relative h-32 w-full overflow-hidden bg-zinc-100 dark:bg-zinc-900">
+                    <div className="relative h-32 w-full overflow-hidden bg-cyan-100 dark:bg-cyan-900">
                       <Preview url={item.url} type={item.file.type} name={item.file.name} />
                       <span
                         className={`absolute left-2 top-2 rounded px-1.5 py-0.5 text-[11px] font-semibold tracking-wider ${badge.className}`}
@@ -780,7 +780,7 @@ export default function Home() {
                             <button
                               type="button"
                               onClick={() => void upload(item)}
-                              className="rounded px-1.5 py-0.5 text-[11px] font-medium text-zinc-700 hover:bg-zinc-200 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                              className="rounded px-1.5 py-0.5 text-[11px] font-medium text-zinc-700 hover:bg-cyan-200 dark:text-zinc-300 dark:hover:bg-cyan-800"
                             >
                               Subir
                             </button>
@@ -789,7 +789,7 @@ export default function Home() {
                             <button
                               type="button"
                               onClick={() => void upload(item)}
-                              className="rounded px-1.5 py-0.5 text-[11px] font-medium text-amber-600 hover:bg-amber-50 dark:text-amber-400 dark:hover:bg-zinc-800"
+                              className="rounded px-1.5 py-0.5 text-[11px] font-medium text-amber-600 hover:bg-amber-50 dark:text-amber-400 dark:hover:bg-cyan-800"
                             >
                               Reintentar
                             </button>
@@ -851,7 +851,7 @@ export default function Home() {
                   placeholder="Buscar por nombre..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full rounded-lg border border-zinc-200 bg-white py-1.5 pl-8 pr-7 text-xs text-zinc-900 placeholder:text-zinc-400 focus:border-zinc-400 focus:outline-none dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-zinc-600"
+                  className="w-full rounded-lg border border-zinc-200 bg-white py-1.5 pl-8 pr-7 text-xs text-zinc-900 placeholder:text-zinc-400 focus:border-zinc-400 focus:outline-none dark:border-zinc-800 dark:bg-cyan-900 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-zinc-600"
                 />
                 {searchQuery && (
                   <button
@@ -868,13 +868,13 @@ export default function Home() {
               </div>
 
               {/* Classification Category Filters */}
-              <div className="flex items-center rounded-lg border border-zinc-200 bg-white p-0.5 dark:border-zinc-800 dark:bg-zinc-900">
+              <div className="flex items-center rounded-lg border border-zinc-200 bg-white p-0.5 dark:border-zinc-800 dark:bg-cyan-900">
                 <button
                   type="button"
                   onClick={() => setCategoryFilter("all")}
                   className={`rounded-md px-2.5 py-1 text-xs font-medium transition ${
                     categoryFilter === "all"
-                      ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900"
+                      ? "bg-cyan-900 text-white dark:bg-cyan-100 dark:text-zinc-900"
                       : "text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
                   }`}
                 >
@@ -885,7 +885,7 @@ export default function Home() {
                   onClick={() => setCategoryFilter("factura")}
                   className={`rounded-md px-2.5 py-1 text-xs font-medium transition ${
                     categoryFilter === "factura"
-                      ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900"
+                      ? "bg-cyan-900 text-white dark:bg-cyan-100 dark:text-zinc-900"
                       : "text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
                   }`}
                 >
@@ -896,7 +896,7 @@ export default function Home() {
                   onClick={() => setCategoryFilter("recibo")}
                   className={`rounded-md px-2.5 py-1 text-xs font-medium transition ${
                     categoryFilter === "recibo"
-                      ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900"
+                      ? "bg-cyan-900 text-white dark:bg-cyan-100 dark:text-zinc-900"
                       : "text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
                   }`}
                 >
@@ -907,7 +907,7 @@ export default function Home() {
                   onClick={() => setCategoryFilter("contrato")}
                   className={`rounded-md px-2.5 py-1 text-xs font-medium transition ${
                     categoryFilter === "contrato"
-                      ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900"
+                      ? "bg-cyan-900 text-white dark:bg-cyan-100 dark:text-zinc-900"
                       : "text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
                   }`}
                 >
@@ -919,7 +919,7 @@ export default function Home() {
                     onClick={() => setCategoryFilter("pending")}
                     className={`rounded-md px-2 py-1 text-xs font-medium transition ${
                       categoryFilter === "pending"
-                        ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900"
+                        ? "bg-cyan-900 text-white dark:bg-cyan-100 dark:text-zinc-900"
                         : "text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
                     }`}
                   >
@@ -932,7 +932,7 @@ export default function Home() {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as SortOption)}
-                className="rounded-lg border border-zinc-200 bg-white px-2.5 py-1.5 text-xs text-zinc-700 focus:outline-none dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300"
+                className="rounded-lg border border-zinc-200 bg-white px-2.5 py-1.5 text-xs text-zinc-700 focus:outline-none dark:border-zinc-800 dark:bg-cyan-900 dark:text-zinc-300"
               >
                 <option value="newest">Más recientes</option>
                 <option value="oldest">Más antiguos</option>
@@ -941,14 +941,14 @@ export default function Home() {
               </select>
 
               {/* View Mode Toggle */}
-              <div className="flex items-center rounded-lg border border-zinc-200 bg-white p-0.5 dark:border-zinc-800 dark:bg-zinc-900">
+              <div className="flex items-center rounded-lg border border-zinc-200 bg-white p-0.5 dark:border-zinc-800 dark:bg-cyan-900">
                 <button
                   type="button"
                   onClick={() => setViewMode("grid")}
                   title="Vista de cuadrícula"
                   className={`rounded-md p-1.5 transition ${
                     viewMode === "grid"
-                      ? "bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-white"
+                      ? "bg-cyan-100 text-zinc-900 dark:bg-cyan-800 dark:text-white"
                       : "text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200"
                   }`}
                 >
@@ -965,7 +965,7 @@ export default function Home() {
                   title="Vista de tabla técnica"
                   className={`rounded-md p-1.5 transition ${
                     viewMode === "table"
-                      ? "bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-white"
+                      ? "bg-cyan-100 text-zinc-900 dark:bg-cyan-800 dark:text-white"
                       : "text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200"
                   }`}
                 >
@@ -984,7 +984,7 @@ export default function Home() {
 
           {/* Stored Documents Listing */}
           {loadingStored ? (
-            <div className="flex h-48 items-center justify-center rounded-2xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
+            <div className="flex h-48 items-center justify-center rounded-2xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-cyan-950">
               <div className="flex items-center gap-2 text-xs text-zinc-500">
                 <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
@@ -995,8 +995,8 @@ export default function Home() {
             </div>
           ) : stored.length === 0 ? (
             /* Empty State */
-            <div className="flex flex-col items-center justify-center rounded-2xl border border-zinc-200 bg-white px-6 py-16 text-center dark:border-zinc-800 dark:bg-zinc-950">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-zinc-100 text-zinc-400 dark:bg-zinc-900 dark:text-zinc-500">
+            <div className="flex flex-col items-center justify-center rounded-2xl border border-zinc-200 bg-white px-6 py-16 text-center dark:border-zinc-800 dark:bg-cyan-950">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-100 text-zinc-400 dark:bg-cyan-900 dark:text-zinc-500">
                 <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                   <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                   <polyline points="14 2 14 8 20 8" />
@@ -1013,14 +1013,14 @@ export default function Home() {
               <button
                 type="button"
                 onClick={() => inputRef.current?.click()}
-                className="mt-5 rounded-lg bg-zinc-900 px-4 py-2 text-xs font-medium text-white transition hover:bg-zinc-800 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
+                className="mt-5 rounded-lg bg-cyan-900 px-4 py-2 text-xs font-medium text-white transition hover:bg-cyan-800 dark:bg-white dark:text-zinc-900 dark:hover:bg-cyan-200"
               >
                 Cargar primer documento
               </button>
             </div>
           ) : filteredDocs.length === 0 ? (
             /* Zero Filter Results */
-            <div className="flex flex-col items-center justify-center rounded-2xl border border-zinc-200 bg-white px-6 py-12 text-center dark:border-zinc-800 dark:bg-zinc-950">
+            <div className="flex flex-col items-center justify-center rounded-2xl border border-zinc-200 bg-white px-6 py-12 text-center dark:border-zinc-800 dark:bg-cyan-950">
               <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
                 Ningún documento coincide con los filtros
               </p>
@@ -1033,7 +1033,7 @@ export default function Home() {
                   setSearchQuery("");
                   setCategoryFilter("all");
                 }}
-                className="mt-3 rounded-md bg-zinc-100 px-3 py-1.5 text-xs text-zinc-700 hover:bg-zinc-200 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                className="mt-3 rounded-md bg-cyan-100 px-3 py-1.5 text-xs text-zinc-700 hover:bg-cyan-200 dark:bg-cyan-900 dark:text-zinc-300 dark:hover:bg-cyan-800"
               >
                 Restablecer filtros
               </button>
@@ -1054,14 +1054,14 @@ export default function Home() {
                       setSelectedDoc(doc);
                       setInspectorTab(doc.extracted_data ? "extraction" : "preview");
                     }}
-                    className={`group relative flex cursor-pointer flex-col overflow-hidden rounded-xl border bg-white transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md dark:bg-zinc-950 ${
+                    className={`group relative flex cursor-pointer flex-col overflow-hidden rounded-xl border bg-white transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md dark:bg-cyan-950 ${
                       isSelected
                         ? "border-zinc-900 ring-1 ring-zinc-900 dark:border-white dark:ring-white"
                         : "border-zinc-200 hover:border-zinc-300 dark:border-zinc-800 dark:hover:border-zinc-700"
                     }`}
                   >
                     {/* Media Thumbnail */}
-                    <div className="relative h-44 w-full overflow-hidden bg-zinc-100/70 dark:bg-zinc-900/50">
+                    <div className="relative h-44 w-full overflow-hidden bg-cyan-100/70 dark:bg-cyan-900/50">
                       <Preview
                         url={`/api/documents/${doc.id}/file`}
                         type={doc.mime_type}
@@ -1119,7 +1119,7 @@ export default function Home() {
                             type="button"
                             onClick={() => void analyzeDocument(doc.id)}
                             disabled={isAnalyzing}
-                            className="inline-flex items-center gap-1 rounded bg-zinc-100 px-2 py-0.5 text-[11px] font-medium text-zinc-700 transition hover:bg-zinc-200 disabled:opacity-50 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
+                            className="inline-flex items-center gap-1 rounded bg-cyan-100 px-2 py-0.5 text-[11px] font-medium text-zinc-700 transition hover:bg-cyan-200 disabled:opacity-50 dark:bg-cyan-800 dark:text-zinc-300 dark:hover:bg-cyan-700"
                           >
                             {isAnalyzing ? (
                               <>
@@ -1158,10 +1158,10 @@ export default function Home() {
             </div>
           ) : (
             /* Table View */
-            <div className="overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-2xs dark:border-zinc-800 dark:bg-zinc-950">
+            <div className="overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-2xs dark:border-zinc-800 dark:bg-cyan-950">
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
-                  <thead className="border-b border-zinc-200 bg-zinc-50/75 text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900/50 dark:text-zinc-400">
+                  <thead className="border-b border-zinc-200 bg-cyan-50/75 text-zinc-500 dark:border-zinc-800 dark:bg-cyan-900/50 dark:text-zinc-400">
                     <tr>
                       <th scope="col" className="px-4 py-3 font-medium">Documento</th>
                       <th scope="col" className="px-4 py-3 font-medium">Tipo Detectado</th>
@@ -1187,13 +1187,13 @@ export default function Home() {
                           }}
                           className={`cursor-pointer transition-colors ${
                             isSelected
-                              ? "bg-zinc-100/70 dark:bg-zinc-900/70"
-                              : "hover:bg-zinc-50 dark:hover:bg-zinc-900/30"
+                              ? "bg-cyan-100/70 dark:bg-cyan-900/70"
+                              : "hover:bg-cyan-50 dark:hover:bg-cyan-900/30"
                           }`}
                         >
                           <td className="px-4 py-3">
                             <div className="flex items-center gap-2.5">
-                              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded bg-zinc-100 text-zinc-500 dark:bg-zinc-900 dark:text-zinc-400">
+                              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded bg-cyan-100 text-zinc-500 dark:bg-cyan-900 dark:text-zinc-400">
                                 {doc.mime_type === "application/pdf" ? (
                                   <svg className="h-4 w-4 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
@@ -1237,7 +1237,7 @@ export default function Home() {
                                     setSelectedDoc(doc);
                                     setInspectorTab("extraction");
                                   }}
-                                  className="rounded px-2 py-1 text-xs text-emerald-600 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-zinc-800"
+                                  className="rounded px-2 py-1 text-xs text-emerald-600 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-cyan-800"
                                 >
                                   Ver JSON
                                 </button>
@@ -1246,7 +1246,7 @@ export default function Home() {
                                   type="button"
                                   onClick={() => void analyzeDocument(doc.id)}
                                   disabled={isAnalyzing}
-                                  className="rounded bg-zinc-100 px-2.5 py-1 text-xs font-medium text-zinc-700 hover:bg-zinc-200 disabled:opacity-50 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
+                                  className="rounded bg-cyan-100 px-2.5 py-1 text-xs font-medium text-zinc-700 hover:bg-cyan-200 disabled:opacity-50 dark:bg-cyan-800 dark:text-zinc-300 dark:hover:bg-cyan-700"
                                 >
                                   {isAnalyzing ? "Analizando..." : "Analizar con IA"}
                                 </button>
@@ -1311,7 +1311,7 @@ export default function Home() {
                   type="button"
                   onClick={() => void analyzeDocument(selectedDoc.id)}
                   disabled={analyzingDocId === selectedDoc.id}
-                  className="inline-flex items-center gap-1 rounded-lg border border-zinc-200 bg-white px-2.5 py-1.5 text-xs font-medium text-zinc-800 shadow-2xs hover:bg-zinc-50 disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:bg-zinc-800"
+                  className="inline-flex items-center gap-1 rounded-lg border border-zinc-200 bg-white px-2.5 py-1.5 text-xs font-medium text-zinc-800 shadow-2xs hover:bg-cyan-50 disabled:opacity-50 dark:border-zinc-700 dark:bg-cyan-900 dark:text-zinc-200 dark:hover:bg-cyan-800"
                 >
                   {analyzingDocId === selectedDoc.id ? (
                     <>
@@ -1333,7 +1333,7 @@ export default function Home() {
                 <button
                   type="button"
                   onClick={() => setSelectedDoc(null)}
-                  className="rounded-lg p-1.5 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
+                  className="rounded-lg p-1.5 text-zinc-400 hover:bg-cyan-100 hover:text-zinc-700 dark:hover:bg-cyan-800 dark:hover:text-zinc-200"
                   title="Cerrar (Esc)"
                 >
                   <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -1388,7 +1388,7 @@ export default function Home() {
                   {!selectedDoc.extracted_data ? (
                     /* Not analyzed yet */
                     <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-zinc-300 py-12 text-center dark:border-zinc-700">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-100 text-zinc-400 dark:bg-zinc-800">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-cyan-100 text-zinc-400 dark:bg-cyan-800">
                         <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                           <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
                         </svg>
@@ -1403,7 +1403,7 @@ export default function Home() {
                         type="button"
                         onClick={() => void analyzeDocument(selectedDoc.id)}
                         disabled={analyzingDocId === selectedDoc.id}
-                        className="mt-4 rounded-lg bg-zinc-900 px-3.5 py-1.5 text-xs font-medium text-white transition hover:bg-zinc-800 dark:bg-white dark:text-zinc-900"
+                        className="mt-4 rounded-lg bg-cyan-900 px-3.5 py-1.5 text-xs font-medium text-white transition hover:bg-cyan-800 dark:bg-white dark:text-zinc-900"
                       >
                         {analyzingDocId === selectedDoc.id ? "Analizando..." : "Iniciar Análisis con Visión IA"}
                       </button>
@@ -1412,7 +1412,7 @@ export default function Home() {
                     /* Structured Extraction View */
                     <div className="space-y-6">
                       {/* Summary Banner */}
-                      <div className="rounded-xl border border-zinc-200 bg-zinc-50/70 p-4 dark:border-zinc-800 dark:bg-zinc-900/40">
+                      <div className="rounded-xl border border-zinc-200 bg-cyan-50/70 p-4 dark:border-zinc-800 dark:bg-cyan-900/40">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
                             <span
@@ -1442,7 +1442,7 @@ export default function Home() {
                         selectedDoc.extracted_data.datos_extraidos.factura && (
                           <div className="space-y-4">
                             <div className="grid grid-cols-2 gap-3">
-                              <div className="rounded-lg border border-zinc-200 bg-white p-3 text-xs dark:border-zinc-800 dark:bg-zinc-900/60">
+                              <div className="rounded-lg border border-zinc-200 bg-white p-3 text-xs dark:border-zinc-800 dark:bg-cyan-900/60">
                                 <span className="text-[11px] font-medium text-zinc-400">Emisor</span>
                                 <p className="mt-1 font-semibold text-zinc-900 dark:text-white">
                                   {selectedDoc.extracted_data.datos_extraidos.factura.emisor?.nombre ?? "—"}
@@ -1451,7 +1451,7 @@ export default function Home() {
                                   {selectedDoc.extracted_data.datos_extraidos.factura.emisor?.identificacion_fiscal ?? ""}
                                 </p>
                               </div>
-                              <div className="rounded-lg border border-zinc-200 bg-white p-3 text-xs dark:border-zinc-800 dark:bg-zinc-900/60">
+                              <div className="rounded-lg border border-zinc-200 bg-white p-3 text-xs dark:border-zinc-800 dark:bg-cyan-900/60">
                                 <span className="text-[11px] font-medium text-zinc-400">Receptor</span>
                                 <p className="mt-1 font-semibold text-zinc-900 dark:text-white">
                                   {selectedDoc.extracted_data.datos_extraidos.factura.receptor?.nombre ?? "—"}
@@ -1462,7 +1462,7 @@ export default function Home() {
                               </div>
                             </div>
 
-                            <dl className="grid grid-cols-3 gap-2 rounded-lg border border-zinc-200 bg-white p-3 text-xs dark:border-zinc-800 dark:bg-zinc-900/40">
+                            <dl className="grid grid-cols-3 gap-2 rounded-lg border border-zinc-200 bg-white p-3 text-xs dark:border-zinc-800 dark:bg-cyan-900/40">
                               <div>
                                 <dt className="text-[11px] text-zinc-400">N° Factura</dt>
                                 <dd className="font-mono font-medium text-zinc-900 dark:text-white">
@@ -1489,7 +1489,7 @@ export default function Home() {
                               selectedDoc.extracted_data.datos_extraidos.factura.items.length > 0 && (
                                 <div className="overflow-hidden rounded-lg border border-zinc-200 dark:border-zinc-800">
                                   <table className="w-full text-left text-xs">
-                                    <thead className="bg-zinc-50 text-[11px] text-zinc-500 dark:bg-zinc-900 dark:text-zinc-400">
+                                    <thead className="bg-cyan-50 text-[11px] text-zinc-500 dark:bg-cyan-900 dark:text-zinc-400">
                                       <tr>
                                         <th className="px-3 py-2 font-medium">Concepto / Ítem</th>
                                         <th className="px-2 py-2 text-right font-medium">Cant.</th>
@@ -1517,7 +1517,7 @@ export default function Home() {
                       {selectedDoc.extracted_data.tipo_documento === "recibo" &&
                         selectedDoc.extracted_data.datos_extraidos.recibo && (
                           <div className="space-y-4">
-                            <div className="rounded-lg border border-zinc-200 bg-white p-3 text-xs dark:border-zinc-800 dark:bg-zinc-900/60">
+                            <div className="rounded-lg border border-zinc-200 bg-white p-3 text-xs dark:border-zinc-800 dark:bg-cyan-900/60">
                               <span className="text-[11px] font-medium text-zinc-400">Comercio / Establecimiento</span>
                               <p className="mt-1 text-sm font-semibold text-zinc-900 dark:text-white">
                                 {selectedDoc.extracted_data.datos_extraidos.recibo.establecimiento ?? "—"}
@@ -1529,7 +1529,7 @@ export default function Home() {
                               )}
                             </div>
 
-                            <dl className="grid grid-cols-2 gap-2 rounded-lg border border-zinc-200 bg-white p-3 text-xs dark:border-zinc-800 dark:bg-zinc-900/40">
+                            <dl className="grid grid-cols-2 gap-2 rounded-lg border border-zinc-200 bg-white p-3 text-xs dark:border-zinc-800 dark:bg-cyan-900/40">
                               <div>
                                 <dt className="text-[11px] text-zinc-400">N° Recibo / Ticket</dt>
                                 <dd className="font-mono font-medium text-zinc-900 dark:text-white">
@@ -1556,7 +1556,7 @@ export default function Home() {
                       {selectedDoc.extracted_data.tipo_documento === "contrato" &&
                         selectedDoc.extracted_data.datos_extraidos.contrato && (
                           <div className="space-y-4">
-                            <div className="rounded-lg border border-zinc-200 bg-white p-3 text-xs dark:border-zinc-800 dark:bg-zinc-900/60">
+                            <div className="rounded-lg border border-zinc-200 bg-white p-3 text-xs dark:border-zinc-800 dark:bg-cyan-900/60">
                               <span className="text-[11px] font-medium text-zinc-400">Título del Contrato</span>
                               <p className="mt-1 font-semibold text-zinc-900 dark:text-white">
                                 {selectedDoc.extracted_data.datos_extraidos.contrato.titulo ?? "Contrato"}
@@ -1572,7 +1572,7 @@ export default function Home() {
                                 <h5 className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Partes Intervinientes</h5>
                                 <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                                   {selectedDoc.extracted_data.datos_extraidos.contrato.partes.map((p, idx) => (
-                                    <div key={idx} className="rounded-lg border border-zinc-200 bg-zinc-50/50 p-2.5 text-xs dark:border-zinc-800 dark:bg-zinc-900/30">
+                                    <div key={idx} className="rounded-lg border border-zinc-200 bg-cyan-50/50 p-2.5 text-xs dark:border-zinc-800 dark:bg-cyan-900/30">
                                       <span className="text-[11px] font-medium text-indigo-600 dark:text-indigo-400">{p.rol}</span>
                                       <p className="font-semibold text-zinc-900 dark:text-white">{p.nombre}</p>
                                       {p.identificacion && <p className="text-[11px] font-mono text-zinc-400">{p.identificacion}</p>}
@@ -1588,7 +1588,7 @@ export default function Home() {
                                 <h5 className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Cláusulas Clave Extraídas</h5>
                                 <div className="space-y-2">
                                   {selectedDoc.extracted_data.datos_extraidos.contrato.clausulas_clave.map((c, idx) => (
-                                    <div key={idx} className="rounded-lg border border-zinc-200 bg-white p-3 text-xs dark:border-zinc-800 dark:bg-zinc-900/50">
+                                    <div key={idx} className="rounded-lg border border-zinc-200 bg-white p-3 text-xs dark:border-zinc-800 dark:bg-cyan-900/50">
                                       <p className="font-semibold text-zinc-900 dark:text-white">
                                         {c.numero ? `${c.numero}. ` : ""}{c.titulo}
                                       </p>
@@ -1616,7 +1616,7 @@ export default function Home() {
                       <button
                         type="button"
                         onClick={() => copyToClipboard(JSON.stringify(selectedDoc.extracted_data, null, 2), "json-copy")}
-                        className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-2.5 py-1 text-xs font-medium text-zinc-800 shadow-2xs hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:bg-zinc-800"
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-2.5 py-1 text-xs font-medium text-zinc-800 shadow-2xs hover:bg-cyan-50 dark:border-zinc-800 dark:bg-cyan-900 dark:text-zinc-200 dark:hover:bg-cyan-800"
                       >
                         {copiedId === "json-copy" ? (
                           <>
@@ -1636,7 +1636,7 @@ export default function Home() {
                   </div>
 
                   {selectedDoc.extracted_data ? (
-                    <pre className="max-h-[500px] overflow-auto rounded-xl border border-zinc-200 bg-zinc-950 p-4 font-mono text-[11px] text-zinc-200 dark:border-zinc-800">
+                    <pre className="max-h-[500px] overflow-auto rounded-xl border border-zinc-200 bg-cyan-950 p-4 font-mono text-[11px] text-zinc-200 dark:border-zinc-800">
                       <code>{JSON.stringify(selectedDoc.extracted_data, null, 2)}</code>
                     </pre>
                   ) : (
@@ -1650,7 +1650,7 @@ export default function Home() {
               {/* File Preview Tab */}
               {inspectorTab === "preview" && (
                 <div>
-                  <div className="relative h-80 w-full overflow-hidden rounded-xl border border-zinc-200 bg-zinc-100 dark:border-zinc-800 dark:bg-zinc-900">
+                  <div className="relative h-80 w-full overflow-hidden rounded-xl border border-zinc-200 bg-cyan-100 dark:border-zinc-800 dark:bg-cyan-900">
                     <Preview
                       url={`/api/documents/${selectedDoc.id}/file`}
                       type={selectedDoc.mime_type}
@@ -1709,7 +1709,7 @@ export default function Home() {
                 <a
                   href={`/api/documents/${selectedDoc.id}/file`}
                   download={selectedDoc.filename}
-                  className="flex-1 rounded-lg border border-zinc-300 bg-white py-2 text-center text-xs font-medium text-zinc-800 shadow-2xs transition hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:bg-zinc-800"
+                  className="flex-1 rounded-lg border border-zinc-300 bg-white py-2 text-center text-xs font-medium text-zinc-800 shadow-2xs transition hover:bg-cyan-50 dark:border-zinc-700 dark:bg-cyan-900 dark:text-zinc-200 dark:hover:bg-cyan-800"
                 >
                   Descargar archivo original
                 </a>
@@ -1717,7 +1717,7 @@ export default function Home() {
                   href={`/api/documents/${selectedDoc.id}/file`}
                   target="_blank"
                   rel="noreferrer"
-                  className="rounded-lg bg-zinc-900 px-4 py-2 text-xs font-medium text-white transition hover:bg-zinc-800 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
+                  className="rounded-lg bg-cyan-900 px-4 py-2 text-xs font-medium text-white transition hover:bg-cyan-800 dark:bg-white dark:text-zinc-900 dark:hover:bg-cyan-200"
                 >
                   Abrir en pestaña ↗
                 </a>
@@ -1767,7 +1767,7 @@ export default function Home() {
                 placeholder="sk-or-..."
                 value={tempApiKey}
                 onChange={(e) => setTempApiKey(e.target.value)}
-                className="mt-1.5 w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 font-mono text-xs text-zinc-900 focus:border-zinc-400 focus:outline-none dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:focus:border-zinc-600"
+                className="mt-1.5 w-full rounded-lg border border-zinc-200 bg-cyan-50 px-3 py-2 font-mono text-xs text-zinc-900 focus:border-zinc-400 focus:outline-none dark:border-zinc-800 dark:bg-cyan-900 dark:text-zinc-100 dark:focus:border-zinc-600"
               />
               <p className="mt-1.5 text-[11px] text-zinc-400">
                 Puedes obtener una clave gratuita en{" "}
@@ -1787,14 +1787,14 @@ export default function Home() {
               <button
                 type="button"
                 onClick={() => setShowKeyModal(false)}
-                className="rounded-lg px-3 py-1.5 text-xs text-zinc-500 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
+                className="rounded-lg px-3 py-1.5 text-xs text-zinc-500 hover:bg-cyan-100 dark:text-zinc-400 dark:hover:bg-cyan-800"
               >
                 Cancelar
               </button>
               <button
                 type="button"
                 onClick={() => saveApiKey(tempApiKey)}
-                className="rounded-lg bg-zinc-900 px-4 py-1.5 text-xs font-medium text-white transition hover:bg-zinc-800 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
+                className="rounded-lg bg-cyan-900 px-4 py-1.5 text-xs font-medium text-white transition hover:bg-cyan-800 dark:bg-white dark:text-zinc-900 dark:hover:bg-cyan-200"
               >
                 Guardar Clave
               </button>

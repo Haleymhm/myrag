@@ -9,15 +9,18 @@
   --border-muted: #d4d4d8;
   --text-muted: #71717a;
   --text-subtle: #a1a1aa;
-  --accent: #18181b;
-  --accent-foreground: #ffffff;
-}
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  /* Brand accent — action surfaces, active selection and focus.
+     The fill carries a dark foreground (#09090b) at 4.83:1 on #0088aa.
+     Hover therefore moves *lighter*, never darker: any shade below
+     #0088aa drops under the 4.5:1 minimum for 12px button labels. */
+  --brand: #0088aa;
+  --brand-hover: #0094b8;
+  --brand-foreground: #09090b;
+  --brand-ink: #006f8c;
+  --brand-tint: rgba(0, 136, 170, 0.08);
+  --brand-tint-strong: rgba(0, 136, 170, 0.14);
+  --brand-line: rgba(0, 136, 170, 0.32);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -30,29 +33,50 @@
     --border-muted: #3f3f46;
     --text-muted: #a1a1aa;
     --text-subtle: #71717a;
-    --accent: #fafafa;
-    --accent-foreground: #09090b;
+
+    --brand: #0088aa;
+    --brand-hover: #0e9abf;
+    --brand-foreground: #09090b;
+    --brand-ink: #38b6d9;
+    --brand-tint: rgba(0, 136, 170, 0.14);
+    --brand-tint-strong: rgba(0, 136, 170, 0.24);
+    --brand-line: rgba(56, 182, 217, 0.38);
   }
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-brand: var(--brand);
+  --color-brand-hover: var(--brand-hover);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-brand-ink: var(--brand-ink);
+  --color-brand-tint: var(--brand-tint);
+  --color-brand-tint-strong: var(--brand-tint-strong);
+  --color-brand-line: var(--brand-line);
+  --font-sans: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
+  caret-color: var(--brand);
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 ::selection {
-  background-color: #27272a;
-  color: #fafafa;
+  background-color: rgba(0, 136, 170, 0.22);
+  color: #09090b;
 }
 
 @media (prefers-color-scheme: dark) {
   ::selection {
-    background-color: #3f3f46;
-    color: #ffffff;
+    background-color: rgba(56, 182, 217, 0.28);
+    color: #fafafa;
   }
 }
 
@@ -72,15 +96,19 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #d4d4d8;
+  background: rgba(0, 136, 170, 0.3);
   border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 136, 170, 0.5);
 }
 
 @media (prefers-color-scheme: dark) {
   ::-webkit-scrollbar-thumb {
-    background: #27272a;
+    background: rgba(56, 182, 217, 0.32);
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #3f3f46;
+    background: rgba(56, 182, 217, 0.55);
   }
 }

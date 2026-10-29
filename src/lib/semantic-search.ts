@@ -8,6 +8,10 @@
 
 import { pool, ensureSchema } from "@/lib/db";
 import { getEmbedding, vectorToPgLiteral } from "@/lib/embeddings";
+import {
+  isCalculationQuery,
+  executeAnalyticalCalculation,
+} from "@/lib/sql-analytics";
 
 export interface SearchResultChunk {
   chunkId: string;
@@ -26,6 +30,8 @@ export interface ChatMessage {
 export interface RagChatResult {
   answer: string;
   sources: SearchResultChunk[];
+  isSqlCalculation?: boolean;
+  sqlQuery?: string;
 }
 
 const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
@@ -218,15 +224,36 @@ ${query}
 }
 
 /**
- * High-level function that runs semantic search and builds the cited RAG response.
+ * High-level function that routes queries:
+ * - If the query is an analytical/calculation question (sum, count, average, totals),
+ *   it executes exact SQL queries against PostgreSQL relational tables.
+ * - Otherwise, it runs semantic vector similarity search over pgvector embeddings.
  */
 export async function answerWithSemanticSearch(
   query: string,
   history: ChatMessage[] = [],
   apiKey?: string,
 ): Promise<RagChatResult> {
+  // 1. Analytical / numerical calculation route
+  if (isCalculationQuery(query)) {
+    try {
+      const sqlResult = await executeAnalyticalCalculation(query, apiKey);
+      if (sqlResult) {
+        return {
+          answer: sqlResult.answer,
+          sources: sqlResult.sources,
+          isSqlCalculation: true,
+          sqlQuery: sqlResult.sqlQuery,
+        };
+      }
+    } catch {
+      // If SQL analysis fails, fall through to vector semantic search
+    }
+  }
+
+  // 2. Vector semantic search route (pgvector embeddings)
   const sources = await searchSimilarChunks(query, { limit: 5, apiKey });
   const answer = await generateRagAnswer(query, sources, history, apiKey);
-  return { answer, sources };
+  return { answer, sources, isSqlCalculation: false };
 }
 

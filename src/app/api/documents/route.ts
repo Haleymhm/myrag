@@ -16,7 +16,8 @@ export async function GET() {
     await ensureSchema();
     const { rows } = await pool.query<DocumentRow>(
       `SELECT id, filename, mime_type, size_bytes, created_at,
-              document_type, extracted_data, analysis_status, analysis_error, analyzed_at
+              document_type, extracted_data, analysis_status, analysis_error, analyzed_at,
+              is_confirmed, confirmed_at
          FROM documents
         ORDER BY created_at DESC`,
     );

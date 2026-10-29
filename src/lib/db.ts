@@ -6,12 +6,37 @@ const connectionString =
 
 const globalForDb = globalThis as unknown as { extractoPool?: Pool };
 
-export const pool =
-  globalForDb.extractoPool ??
-  new Pool({
-    connectionString,
+function createDbPool(rawUrl: string): Pool {
+  const isLocal =
+    rawUrl.includes("localhost") ||
+    rawUrl.includes("127.0.0.1") ||
+    rawUrl.includes("::1");
+
+  if (isLocal) {
+    return new Pool({ connectionString: rawUrl, max: 10 });
+  }
+
+  // Para bases de datos remotas (Supabase, Neon, AWS RDS, etc.):
+  // Se elimina el parámetro `sslmode` del query string para evitar que pg-connection-string
+  // fuerce verificación estricta de CA (verify-full) y se habilita rejectUnauthorized: false
+  // para permitir certificados autofirmados / cadenas intermedias de proveedores cloud.
+  let cleanUrl = rawUrl;
+  try {
+    const parsed = new URL(rawUrl);
+    parsed.searchParams.delete("sslmode");
+    cleanUrl = parsed.toString();
+  } catch {
+    // Si no es un URL estándar, se usa como está
+  }
+
+  return new Pool({
+    connectionString: cleanUrl,
+    ssl: { rejectUnauthorized: false },
     max: 10,
   });
+}
+
+export const pool = globalForDb.extractoPool ?? createDbPool(connectionString);
 
 if (process.env.NODE_ENV !== "production") {
   globalForDb.extractoPool = pool;

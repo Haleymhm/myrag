@@ -31,6 +31,22 @@ type ViewMode = "grid" | "table";
 type CategoryFilter = "all" | "factura" | "recibo" | "contrato" | "pending";
 type SortOption = "newest" | "oldest" | "size-desc" | "name-asc";
 
+type ChatSource = {
+  chunkId: string;
+  documentId: string;
+  filename: string;
+  documentType: string | null;
+  content: string;
+  similarity: number;
+};
+
+type ChatMessageItem = {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  sources?: ChatSource[];
+};
+
 const ACCEPTED_TYPES = [
   "application/pdf",
   "image/png",
@@ -205,6 +221,20 @@ export default function Home() {
   const [confirmingDocId, setConfirmingDocId] = useState<string | null>(null);
   const [confirmationNotice, setConfirmationNotice] = useState<string | null>(null);
   const [autoAnalyzeOnUpload, setAutoAnalyzeOnUpload] = useState(true);
+
+  // Active section: Documents Explorer vs Semantic RAG Chat
+  const [activeSection, setActiveSection] = useState<"documents" | "chat">("documents");
+  const [chatInput, setChatInput] = useState("");
+  const [chatLoading, setChatLoading] = useState(false);
+  const [chatMessages, setChatMessages] = useState<ChatMessageItem[]>([
+    {
+      id: "welcome",
+      role: "assistant",
+      content:
+        "¡Hola! Soy tu asistente documental inteligente sobre PostgreSQL & PGVector. " +
+        "Puedo buscar en tus facturas, recibos y contratos utilizando búsqueda semántica por embeddings (1536 dimensiones) y citaré el origen exacto de los documentos analizados.",
+    },
+  ]);
 
   // OpenRouter API Key management
   const [apiKey, setApiKey] = useState<string>("");
@@ -389,6 +419,65 @@ export default function Home() {
     [apiKey, loadStored],
   );
 
+  const sendChatMessage = useCallback(
+    async (text: string) => {
+      const query = text.trim();
+      if (!query || chatLoading) return;
+
+      const userMsg: ChatMessageItem = {
+        id: `user-${Date.now()}`,
+        role: "user",
+        content: query,
+      };
+
+      setChatMessages((prev) => [...prev, userMsg]);
+      setChatInput("");
+      setChatLoading(true);
+
+      try {
+        const history = chatMessages.slice(-6).map((m) => ({
+          role: m.role,
+          content: m.content,
+        }));
+
+        const headers: Record<string, string> = {
+          "Content-Type": "application/json",
+        };
+        if (apiKey) {
+          headers["x-openrouter-api-key"] = apiKey;
+        }
+
+        const res = await fetch("/api/chat", {
+          method: "POST",
+          headers,
+          body: JSON.stringify({ message: query, history }),
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error ?? "Error en la consulta");
+
+        const assistantMsg: ChatMessageItem = {
+          id: `asst-${Date.now()}`,
+          role: "assistant",
+          content: data.answer,
+          sources: data.sources,
+        };
+
+        setChatMessages((prev) => [...prev, assistantMsg]);
+      } catch (err) {
+        const errorMsg: ChatMessageItem = {
+          id: `err-${Date.now()}`,
+          role: "assistant",
+          content: `⚠️ Error en la búsqueda semántica: ${(err as Error).message}`,
+        };
+        setChatMessages((prev) => [...prev, errorMsg]);
+      } finally {
+        setChatLoading(false);
+      }
+    },
+    [apiKey, chatLoading, chatMessages],
+  );
+
   const upload = useCallback(
     async (item: Pending) => {
       setPending((current) =>
@@ -528,6 +617,41 @@ export default function Home() {
             </div>
           </div>
 
+          {/* Section Navigation: Documentos vs Chat Semántico RAG */}
+          <nav className="flex items-center gap-1 rounded-lg border border-zinc-200/80 bg-white/60 p-1 dark:border-zinc-800 dark:bg-cyan-900/40">
+            <button
+              type="button"
+              onClick={() => setActiveSection("documents")}
+              className={`flex items-center gap-1.5 rounded-md px-3 py-1 text-xs font-medium transition ${
+                activeSection === "documents"
+                  ? "bg-cyan-900 text-white dark:bg-white dark:text-zinc-900 shadow-xs"
+                  : "text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white"
+              }`}
+            >
+              <span>Documentos</span>
+              <span className="rounded bg-black/10 px-1.5 py-0.2 text-[10px] dark:bg-white/20">
+                {stored.length}
+              </span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveSection("chat")}
+              className={`flex items-center gap-1.5 rounded-md px-3 py-1 text-xs font-medium transition ${
+                activeSection === "chat"
+                  ? "bg-cyan-900 text-white dark:bg-white dark:text-zinc-900 shadow-xs"
+                  : "text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white"
+              }`}
+            >
+              <svg className="h-3.5 w-3.5 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+              </svg>
+              <span>Chat Semántico</span>
+              <span className="rounded bg-emerald-500/20 px-1.5 py-0.2 text-[10px] text-emerald-600 dark:text-emerald-400 font-mono">
+                PGVector
+              </span>
+            </button>
+          </nav>
+
           {/* Telemetry and Controls */}
           <div className="flex items-center gap-3">
             {/* OpenRouter API Key status chip */}
@@ -636,7 +760,171 @@ export default function Home() {
           </div>
         )}
 
-        {/* Ingestion Dropzone */}
+        {/* Active Section: Chat RAG vs Documents Explorer */}
+        {activeSection === "chat" ? (
+          <section className="flex flex-col gap-6">
+            {/* Header Banner */}
+            <div className="rounded-2xl border border-zinc-200/80 bg-white/70 p-6 shadow-xs dark:border-zinc-800/80 dark:bg-cyan-900/30">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                      <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                      </svg>
+                    </span>
+                    <h2 className="text-base font-semibold text-zinc-900 dark:text-white">
+                      Chat RAG con Búsqueda Semántica
+                    </h2>
+                  </div>
+                  <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                    Consulta tu corpus documental en lenguaje natural. Buscamos por similitud de coseno en PGVector (1536 dimensiones) y citamos con precisión los documentos de origen.
+                  </p>
+                </div>
+                <div className="flex items-center gap-2 text-xs font-mono text-zinc-500 dark:text-zinc-400">
+                  <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                  <span>{stored.filter((d) => d.is_confirmed || d.extracted_data).length} docs listos</span>
+                </div>
+              </div>
+
+              {/* Quick suggestions */}
+              <div className="mt-4 flex flex-wrap items-center gap-2 pt-4 border-t border-zinc-100 dark:border-zinc-800">
+                <span className="text-[11px] font-medium text-zinc-400">Sugerencias:</span>
+                {[
+                  "¿Cuáles son las facturas y sus montos totales?",
+                  "¿Qué direcciones y datos de emisores constan?",
+                  "¿Qué acuerdos o cláusulas tienen los contratos?",
+                  "¿Cuáles son los recibos de compra registrados?",
+                ].map((sug, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => void sendChatMessage(sug)}
+                    className="rounded-full border border-zinc-200 bg-white/80 px-2.5 py-1 text-[11px] text-zinc-600 transition hover:border-zinc-300 hover:bg-cyan-50 dark:border-zinc-800 dark:bg-cyan-900/60 dark:text-zinc-300 dark:hover:bg-cyan-800"
+                  >
+                    {sug}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Conversation Flow */}
+            <div className="flex flex-col gap-4 min-h-[420px]">
+              {chatMessages.map((msg) => (
+                <div
+                  key={msg.id}
+                  className={`flex flex-col ${
+                    msg.role === "user" ? "items-end" : "items-start"
+                  }`}
+                >
+                  <div
+                    className={`max-w-3xl rounded-2xl p-4 text-xs leading-relaxed ${
+                      msg.role === "user"
+                        ? "bg-cyan-900 text-white dark:bg-white dark:text-zinc-900"
+                        : "border border-zinc-200 bg-white shadow-2xs dark:border-zinc-800 dark:bg-cyan-900/50 dark:text-zinc-100"
+                    }`}
+                  >
+                    <div className="whitespace-pre-wrap">{msg.content}</div>
+
+                    {/* Cited sources section */}
+                    {msg.sources && msg.sources.length > 0 && (
+                      <div className="mt-4 pt-3 border-t border-zinc-200/60 dark:border-zinc-800/80">
+                        <div className="flex items-center gap-1.5 text-[11px] font-semibold text-zinc-600 dark:text-zinc-300">
+                          <svg className="h-3.5 w-3.5 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                            <polyline points="14 2 14 8 20 8" />
+                          </svg>
+                          <span>Fuentes citadas del documento original ({msg.sources.length}):</span>
+                        </div>
+
+                        <div className="mt-2.5 space-y-2">
+                          {msg.sources.map((src, sIdx) => {
+                            const badge = getTypeBadge(src.documentType as DocumentType);
+                            return (
+                              <div
+                                key={sIdx}
+                                className="rounded-xl border border-zinc-200/80 bg-cyan-50/50 p-2.5 dark:border-zinc-800 dark:bg-cyan-950/40"
+                              >
+                                <div className="flex flex-wrap items-center justify-between gap-1.5 text-[11px]">
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-semibold text-zinc-900 dark:text-white">
+                                      {src.filename}
+                                    </span>
+                                    {src.documentType && (
+                                      <span className={`rounded px-1.5 py-0.2 font-mono uppercase text-[10px] ${badge.className}`}>
+                                        {src.documentType}
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <span className="rounded bg-emerald-500/10 px-1.5 py-0.5 font-mono text-[10px] font-medium text-emerald-600 dark:text-emerald-400">
+                                      {(src.similarity * 100).toFixed(0)}% similitud
+                                    </span>
+                                    <a
+                                      href={`/api/documents/${src.documentId}/file`}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      className="text-zinc-500 underline hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white"
+                                    >
+                                      Abrir original ↗
+                                    </a>
+                                  </div>
+                                </div>
+                                <p className="mt-1.5 font-mono text-[11px] leading-relaxed text-zinc-600 dark:text-zinc-300">
+                                  {src.content}
+                                </p>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+
+              {chatLoading && (
+                <div className="flex items-start">
+                  <div className="max-w-md rounded-2xl border border-zinc-200 bg-white p-4 text-xs text-zinc-500 shadow-2xs dark:border-zinc-800 dark:bg-cyan-900/50 dark:text-zinc-400">
+                    <div className="flex items-center gap-2">
+                      <div className="h-2 w-2 animate-pulse rounded-full bg-emerald-500" />
+                      <span>Buscando vectores en PGVector y formulando respuesta con citas...</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Input Controls */}
+            <div className="sticky bottom-6 rounded-2xl border border-zinc-200 bg-white/90 p-3 shadow-lg backdrop-blur-md dark:border-zinc-800 dark:bg-cyan-900/90">
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  void sendChatMessage(chatInput);
+                }}
+                className="flex items-center gap-2"
+              >
+                <input
+                  type="text"
+                  value={chatInput}
+                  onChange={(e) => setChatInput(e.target.value)}
+                  placeholder="Pregunta algo sobre tus facturas, recibos o contratos..."
+                  disabled={chatLoading}
+                  className="flex-1 rounded-xl border border-transparent bg-cyan-100/60 px-4 py-2.5 text-xs text-zinc-900 focus:border-zinc-300 focus:bg-white focus:outline-none dark:bg-cyan-950 dark:text-white dark:focus:border-zinc-700"
+                />
+                <button
+                  type="submit"
+                  disabled={chatLoading || !chatInput.trim()}
+                  className="rounded-xl bg-cyan-900 px-4 py-2.5 text-xs font-medium text-white transition hover:bg-cyan-800 disabled:opacity-50 dark:bg-white dark:text-zinc-900 dark:hover:bg-cyan-200"
+                >
+                  Enviar
+                </button>
+              </form>
+            </div>
+          </section>
+        ) : (
+          <>
+            {/* Ingestion Dropzone */}
         <section
           onDragOver={(e) => {
             e.preventDefault();
@@ -1320,7 +1608,9 @@ export default function Home() {
             </div>
           )}
         </section>
-      </main>
+      </>
+    )}
+  </main>
 
       {/* Deep Document Inspector Drawer */}
       {selectedDoc && (

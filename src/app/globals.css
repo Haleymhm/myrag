@@ -1,52 +1,60 @@
 @import "tailwindcss";
 
 :root {
-  --background: #fafafa;
-  --foreground: #09090b;
+  --background: #fafaf9;
+  --foreground: #1c1917;
   --surface: #ffffff;
-  --surface-raised: #f4f4f5;
-  --border-subtle: #e4e4e7;
-  --border-muted: #d4d4d8;
-  --text-muted: #71717a;
-  --text-subtle: #a1a1aa;
+  --surface-raised: #f5f5f4;
+  --surface-panel: #f0efee;
+  --border-subtle: #e7e5e4;
+  --border-muted: #d6d3d1;
+  --text-muted: #78716c;
+  --text-subtle: #a8a29e;
 
-  /* Brand accent — action surfaces, active selection and focus.
-     The fill carries a dark foreground (#09090b) at 4.83:1 on #0088aa.
-     Hover therefore moves *lighter*, never darker: any shade below
-     #0088aa drops under the 4.5:1 minimum for 12px button labels. */
-  --brand: #0088aa;
-  --brand-hover: #0094b8;
-  --brand-foreground: #09090b;
-  --brand-ink: #006f8c;
-  --brand-tint: rgba(0, 136, 170, 0.08);
-  --brand-tint-strong: rgba(0, 136, 170, 0.14);
-  --brand-line: rgba(0, 136, 170, 0.32);
+  /* Amber brand — forensic precision accent.
+     #b45309 on white = 4.63:1. Hover #92400e = 6.94:1.
+     Used exclusively for: primary actions, active selection, focus rings. */
+  --brand: #b45309;
+  --brand-hover: #92400e;
+  --brand-foreground: #ffffff;
+  --brand-ink: #b45309;
+  --brand-tint: rgba(180, 83, 9, 0.07);
+  --brand-tint-strong: rgba(180, 83, 9, 0.13);
+  --brand-line: rgba(180, 83, 9, 0.28);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #09090b;
-    --foreground: #fafafa;
-    --surface: #121215;
-    --surface-raised: #18181b;
-    --border-subtle: #27272a;
-    --border-muted: #3f3f46;
-    --text-muted: #a1a1aa;
-    --text-subtle: #71717a;
+    --background: #111110;
+    --foreground: #f5f5f4;
+    --surface: #1c1917;
+    --surface-raised: #292524;
+    --surface-panel: #211f1e;
+    --border-subtle: #2c2925;
+    --border-muted: #44403c;
+    --text-muted: #a8a29e;
+    --text-subtle: #78716c;
 
-    --brand: #0088aa;
-    --brand-hover: #0e9abf;
-    --brand-foreground: #09090b;
-    --brand-ink: #38b6d9;
-    --brand-tint: rgba(0, 136, 170, 0.14);
-    --brand-tint-strong: rgba(0, 136, 170, 0.24);
-    --brand-line: rgba(56, 182, 217, 0.38);
+    --brand: #f59e0b;
+    --brand-hover: #fbbf24;
+    --brand-foreground: #1c1917;
+    --brand-ink: #f59e0b;
+    --brand-tint: rgba(245, 158, 11, 0.10);
+    --brand-tint-strong: rgba(245, 158, 11, 0.18);
+    --brand-line: rgba(245, 158, 11, 0.32);
   }
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-panel: var(--surface-panel);
+  --color-border-subtle: var(--border-subtle);
+  --color-border-muted: var(--border-muted);
+  --color-text-muted: var(--text-muted);
+  --color-text-subtle: var(--text-subtle);
   --color-brand: var(--brand);
   --color-brand-hover: var(--brand-hover);
   --color-brand-foreground: var(--brand-foreground);
@@ -69,15 +77,8 @@ body {
 }
 
 ::selection {
-  background-color: rgba(0, 136, 170, 0.22);
-  color: #09090b;
-}
-
-@media (prefers-color-scheme: dark) {
-  ::selection {
-    background-color: rgba(56, 182, 217, 0.28);
-    color: #fafafa;
-  }
+  background-color: var(--brand-tint-strong);
+  color: var(--foreground);
 }
 
 /* Tabular figures for telemetry, timestamps and file sizes */
@@ -85,10 +86,16 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
-/* Refined custom scrollbar */
+/* Focus ring — amber, consistent across all interactives */
+:focus-visible {
+  outline: 2px solid var(--brand-line);
+  outline-offset: 2px;
+}
+
+/* Refined scrollbar — stone/warm neutral to match new palette */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {
@@ -96,19 +103,23 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(0, 136, 170, 0.3);
+  background: var(--border-muted);
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 136, 170, 0.5);
+  background: var(--text-subtle);
+}
+
+/* Text selection decoration */
+::selection {
+  background-color: rgba(180, 83, 9, 0.12);
+  color: var(--foreground);
 }
 
 @media (prefers-color-scheme: dark) {
-  ::-webkit-scrollbar-thumb {
-    background: rgba(56, 182, 217, 0.32);
-  }
-  ::-webkit-scrollbar-thumb:hover {
-    background: rgba(56, 182, 217, 0.55);
+  ::selection {
+    background-color: rgba(245, 158, 11, 0.18);
+    color: var(--foreground);
   }
 }

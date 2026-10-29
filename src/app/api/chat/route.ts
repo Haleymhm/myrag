@@ -26,6 +26,8 @@ export async function POST(request: Request) {
       success: true,
       answer: result.answer,
       sources: result.sources,
+      isSqlCalculation: result.isSqlCalculation ?? false,
+      sqlQuery: result.sqlQuery,
     });
   } catch (error) {
     const msg = (error as Error).message;

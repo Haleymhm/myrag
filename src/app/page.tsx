@@ -45,6 +45,8 @@ type ChatMessageItem = {
   role: "user" | "assistant";
   content: string;
   sources?: ChatSource[];
+  isSqlCalculation?: boolean;
+  sqlQuery?: string;
 };
 
 const ACCEPTED_TYPES = [
@@ -461,6 +463,8 @@ export default function Home() {
           role: "assistant",
           content: data.answer,
           sources: data.sources,
+          isSqlCalculation: data.isSqlCalculation,
+          sqlQuery: data.sqlQuery,
         };
 
         setChatMessages((prev) => [...prev, assistantMsg]);
@@ -824,6 +828,18 @@ export default function Home() {
                         : "border border-zinc-200 bg-white shadow-2xs dark:border-zinc-800 dark:bg-cyan-900/50 dark:text-zinc-100"
                     }`}
                   >
+                    {/* Header badge if answered via SQL Calculation */}
+                    {msg.isSqlCalculation && (
+                      <div className="mb-2.5 inline-flex items-center gap-1.5 rounded-full border border-blue-500/20 bg-blue-500/10 px-2.5 py-0.5 text-[11px] font-medium text-blue-700 dark:text-blue-300">
+                        <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <ellipse cx="12" cy="5" rx="9" ry="3" />
+                          <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" />
+                          <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
+                        </svg>
+                        <span>Cálculo numérico ejecutado en PostgreSQL (SQL)</span>
+                      </div>
+                    )}
+
                     <div className="whitespace-pre-wrap">{msg.content}</div>
 
                     {/* Cited sources section */}
@@ -857,8 +873,16 @@ export default function Home() {
                                     )}
                                   </div>
                                   <div className="flex items-center gap-2">
-                                    <span className="rounded bg-emerald-500/10 px-1.5 py-0.5 font-mono text-[10px] font-medium text-emerald-600 dark:text-emerald-400">
-                                      {(src.similarity * 100).toFixed(0)}% similitud
+                                    <span
+                                      className={`rounded px-1.5 py-0.5 font-mono text-[10px] font-medium ${
+                                        msg.isSqlCalculation || src.similarity === 1
+                                          ? "bg-blue-500/10 text-blue-600 dark:text-blue-400"
+                                          : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                                      }`}
+                                    >
+                                      {msg.isSqlCalculation || src.similarity === 1
+                                        ? "100% exacto (SQL)"
+                                        : `${(src.similarity * 100).toFixed(0)}% similitud`}
                                     </span>
                                     <a
                                       href={`/api/documents/${src.documentId}/file`}

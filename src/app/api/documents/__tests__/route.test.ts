@@ -25,7 +25,16 @@ import {
 } from "@/app/api/__tests__/helpers";
 import {
   validFactura,
+  validRecibo,
+  validContrato,
   facturaWithoutNumero,
+  facturaWithoutFechaEmision,
+  facturaIncoherenciaTotal,
+  facturaFechaImpossible,
+  facturaVencimientoAnterior,
+  reciboSinEstablecimiento,
+  reciboIncoherenciaTotal,
+  contratoUnaParteOnly,
 } from "@/lib/__tests__/fixtures";
 
 const { queryMock, ensureSchemaMock, visionMock } = vi.hoisted(() => ({
@@ -184,6 +193,113 @@ describe("POST /api/documents?analyze=true — auto-análisis", () => {
     const [, mimeType, apiKey] = visionMock.mock.calls[0];
     expect(mimeType).toBe("application/pdf");
     expect(apiKey).toBe("sk-test-123");
+  });
+
+  it("❌ sube un PDF INCOMPLETO: falla si la fecha no existe en el calendario (30 de febrero)", async () => {
+    visionMock.mockResolvedValue(facturaFechaImpossible);
+    const file = createFile({ name: "factura-fecha-invalida.pdf" });
+
+    const res = await POST(buildUploadRequest(file, { analyze: true }));
+    const body = await res.json();
+
+    expect(res.status).toBe(201);
+    expect(body.document.analysis_status).toBe("failed");
+    expect(body.document.analysis_error).toContain("Fecha inválida (fecha no existe en el calendario)");
+    expect(db.docs[0].analysis_status).toBe("failed");
+  });
+
+  it("❌ sube un PDF INCOMPLETO: falla si fecha_vencimiento es anterior a fecha_emision", async () => {
+    visionMock.mockResolvedValue(facturaVencimientoAnterior);
+    const file = createFile({ name: "factura-vencimiento-anterior.pdf" });
+
+    const res = await POST(buildUploadRequest(file, { analyze: true }));
+    const body = await res.json();
+
+    expect(res.status).toBe(201);
+    expect(body.document.analysis_status).toBe("failed");
+    expect(body.document.analysis_error).toContain("La fecha de vencimiento no puede ser anterior a la fecha de emisión");
+    expect(db.docs[0].analysis_status).toBe("failed");
+  });
+
+  it("❌ sube un PDF INCOMPLETO: falla si subtotal + impuestos no es igual al total", async () => {
+    visionMock.mockResolvedValue(facturaIncoherenciaTotal);
+    const file = createFile({ name: "factura-incoherente.pdf" });
+
+    const res = await POST(buildUploadRequest(file, { analyze: true }));
+    const body = await res.json();
+
+    expect(res.status).toBe(201);
+    expect(body.document.analysis_status).toBe("failed");
+    expect(body.document.analysis_error).toContain("Incoherencia numérica");
+    expect(body.document.analysis_error).toContain("subtotal");
+    expect(db.docs[0].analysis_status).toBe("failed");
+  });
+
+  it("✅ sube un PDF exitoso de RECIBO (subtotal + impuesto + propina = total)", async () => {
+    visionMock.mockResolvedValue(validRecibo);
+    const file = createFile({ name: "ticket-compra.pdf" });
+
+    const res = await POST(buildUploadRequest(file, { analyze: true }));
+    const body = await res.json();
+
+    expect(res.status).toBe(201);
+    expect(body.document.analysis_status).toBe("completed");
+    expect(body.document.document_type).toBe("recibo");
+    expect(body.document.analysis_error).toBeNull();
+    expect(db.docs[0].analysis_status).toBe("completed");
+    expect(db.docs[0].document_type).toBe("recibo");
+  });
+
+  it("❌ sube un PDF INCOMPLETO de RECIBO: falla si no incluye establecimiento o incoherencia de total", async () => {
+    visionMock.mockResolvedValue(reciboSinEstablecimiento);
+    const file = createFile({ name: "recibo-sin-establecimiento.pdf" });
+
+    const res = await POST(buildUploadRequest(file, { analyze: true }));
+    const body = await res.json();
+
+    expect(res.status).toBe(201);
+    expect(body.document.analysis_status).toBe("failed");
+    expect(body.document.analysis_error).toContain("establecimiento");
+    expect(db.docs[0].analysis_status).toBe("failed");
+  });
+
+  it("❌ sube un PDF INCOMPLETO de RECIBO: falla si subtotal + propina + impuesto ≠ total", async () => {
+    visionMock.mockResolvedValue(reciboIncoherenciaTotal);
+    const file = createFile({ name: "recibo-incoherente.pdf" });
+
+    const res = await POST(buildUploadRequest(file, { analyze: true }));
+    const body = await res.json();
+
+    expect(res.status).toBe(201);
+    expect(body.document.analysis_status).toBe("failed");
+    expect(body.document.analysis_error).toContain("Incoherencia numérica");
+    expect(db.docs[0].analysis_status).toBe("failed");
+  });
+
+  it("✅ sube un PDF exitoso de CONTRATO (mínimo 2 partes y vigencia válida)", async () => {
+    visionMock.mockResolvedValue(validContrato);
+    const file = createFile({ name: "contrato-servicios.pdf" });
+
+    const res = await POST(buildUploadRequest(file, { analyze: true }));
+    const body = await res.json();
+
+    expect(res.status).toBe(201);
+    expect(body.document.analysis_status).toBe("completed");
+    expect(body.document.document_type).toBe("contrato");
+    expect(db.docs[0].analysis_status).toBe("completed");
+  });
+
+  it("❌ sube un PDF INCOMPLETO de CONTRATO: falla si no tiene al menos 2 partes", async () => {
+    visionMock.mockResolvedValue(contratoUnaParteOnly);
+    const file = createFile({ name: "contrato-incompleto.pdf" });
+
+    const res = await POST(buildUploadRequest(file, { analyze: true }));
+    const body = await res.json();
+
+    expect(res.status).toBe(201);
+    expect(body.document.analysis_status).toBe("failed");
+    expect(body.document.analysis_error).toContain("partes");
+    expect(db.docs[0].analysis_status).toBe("failed");
   });
 });
 

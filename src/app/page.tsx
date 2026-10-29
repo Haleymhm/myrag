@@ -15,6 +15,8 @@ type StoredDoc = {
   analysis_status?: AnalysisStatus | null;
   analysis_error?: string | null;
   analyzed_at?: string | null;
+  is_confirmed?: boolean | null;
+  confirmed_at?: string | null;
 };
 
 type Pending = {
@@ -200,6 +202,8 @@ export default function Home() {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [copiedCommand, setCopiedCommand] = useState(false);
   const [analyzingDocId, setAnalyzingDocId] = useState<string | null>(null);
+  const [confirmingDocId, setConfirmingDocId] = useState<string | null>(null);
+  const [confirmationNotice, setConfirmationNotice] = useState<string | null>(null);
   const [autoAnalyzeOnUpload, setAutoAnalyzeOnUpload] = useState(true);
 
   // OpenRouter API Key management
@@ -339,6 +343,47 @@ export default function Home() {
         await loadStored();
       } finally {
         setAnalyzingDocId(null);
+      }
+    },
+    [apiKey, loadStored],
+  );
+
+  // Confirm structured data to Postgres tables & vectorize into PGVector
+  const confirmDocument = useCallback(
+    async (docId: string) => {
+      setConfirmingDocId(docId);
+      setConfirmationNotice(null);
+      try {
+        const headers: Record<string, string> = {
+          "Content-Type": "application/json",
+        };
+        if (apiKey) {
+          headers["x-openrouter-api-key"] = apiKey;
+        }
+
+        const res = await fetch(`/api/documents/${docId}/confirm`, {
+          method: "POST",
+          headers,
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error ?? "Fallo en la confirmación del documento");
+
+        setConfirmationNotice(
+          `✓ Guardado exitoso: ${data.result.structuredRecordsInserted} registros en PostgreSQL y ${data.result.chunksVectorized} chunks en PGVector.`,
+        );
+
+        await loadStored();
+        setSelectedDoc((current) =>
+          current?.id === docId
+            ? { ...current, is_confirmed: true, confirmed_at: new Date().toISOString() }
+            : current,
+        );
+      } catch (error) {
+        const msg = (error as Error).message;
+        alert(`Error al confirmar documento: ${msg}`);
+      } finally {
+        setConfirmingDocId(null);
       }
     },
     [apiKey, loadStored],
@@ -1411,6 +1456,56 @@ export default function Home() {
                   ) : (
                     /* Structured Extraction View */
                     <div className="space-y-6">
+                      {/* Confirmation and PGVector Persistence Status */}
+                      {selectedDoc.is_confirmed ? (
+                        <div className="flex items-center justify-between rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3.5 text-xs text-emerald-800 dark:text-emerald-200">
+                          <div className="flex items-center gap-2.5">
+                            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 font-bold">
+                              ✓
+                            </span>
+                            <div>
+                              <p className="font-medium text-emerald-900 dark:text-emerald-100">
+                                Documento confirmado
+                              </p>
+                              <p className="text-[11px] text-emerald-700/80 dark:text-emerald-300/80">
+                                Datos guardados en tablas PostgreSQL y textos vectorizados en PGVector.
+                              </p>
+                            </div>
+                          </div>
+                          <span className="rounded bg-emerald-500/20 px-2 py-0.5 text-[11px] font-mono font-medium">
+                            PGVector Activo
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-cyan-900/40">
+                          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                            <div>
+                              <h4 className="text-xs font-semibold text-zinc-900 dark:text-white">
+                                Guardar en PostgreSQL & PGVector
+                              </h4>
+                              <p className="mt-0.5 text-[11px] text-zinc-500 dark:text-zinc-400">
+                                Valida y persiste en tablas relacionales e inserta embeddings de títulos, nombres y direcciones en PGVector.
+                              </p>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => void confirmDocument(selectedDoc.id)}
+                              disabled={confirmingDocId === selectedDoc.id}
+                              className="rounded-lg bg-emerald-600 px-3.5 py-1.5 text-xs font-medium text-white transition hover:bg-emerald-500 disabled:opacity-50 shrink-0"
+                            >
+                              {confirmingDocId === selectedDoc.id
+                                ? "Guardando y vectorizando..."
+                                : "Confirmar y Vectorizar"}
+                            </button>
+                          </div>
+                          {confirmationNotice && (
+                            <p className="mt-2 text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
+                              {confirmationNotice}
+                            </p>
+                          )}
+                        </div>
+                      )}
+
                       {/* Summary Banner */}
                       <div className="rounded-xl border border-zinc-200 bg-cyan-50/70 p-4 dark:border-zinc-800 dark:bg-cyan-900/40">
                         <div className="flex items-center justify-between">
